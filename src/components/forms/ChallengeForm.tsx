@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   getSupabaseBrowserClient,
@@ -226,6 +226,16 @@ type TechnicalErrorDetail = {
   details?: string;
 };
 
+type ConfirmationEmailNotice = {
+  tone: "success" | "warning";
+  message: string;
+};
+
+type ConfirmationEmailResponse = {
+  emailSent?: boolean;
+  message?: string;
+};
+
 const validNivelesAccesoDatos: SupabaseNivelAccesoDatos[] = [
   "publico",
   "interno",
@@ -349,10 +359,58 @@ function getUnexpectedTechnicalErrorDetail(error: unknown): TechnicalErrorDetail
   return { message: "Error inesperado sin detalle disponible." };
 }
 
+async function sendConfirmationEmail({
+  proponente_nombre,
+  proponente_contacto,
+  nombre_desafio,
+}: Pick<
+  DesafioInsertPayload,
+  "proponente_nombre" | "proponente_contacto" | "nombre_desafio"
+>): Promise<ConfirmationEmailNotice> {
+  try {
+    const response = await fetch("/api/desafios/confirmacion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        proponente_nombre,
+        proponente_contacto,
+        nombre_desafio,
+      }),
+    });
+    const data = (await response.json().catch(() => null)) as
+      | ConfirmationEmailResponse
+      | null;
+
+    if (!response.ok || data?.emailSent !== true) {
+      return {
+        tone: "warning",
+        message:
+          "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
+      };
+    }
+
+    return {
+      tone: "success",
+      message: "Se envió un correo de confirmación al contacto registrado.",
+    };
+  } catch {
+    return {
+      tone: "warning",
+      message:
+        "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
+    };
+  }
+}
+
 export function ChallengeForm() {
+  const formTopRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [emailNotice, setEmailNotice] =
+    useState<ConfirmationEmailNotice | null>(null);
   const [technicalError, setTechnicalError] =
     useState<TechnicalErrorDetail | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -369,6 +427,7 @@ export function ChallengeForm() {
 
     setSuccessMessage(null);
     setErrorMessage(null);
+    setEmailNotice(null);
     setTechnicalError(null);
     setFieldErrors({});
 
@@ -421,13 +480,23 @@ export function ChallengeForm() {
         return;
       }
 
+      const confirmationEmailNotice = await sendConfirmationEmail({
+        nombre_desafio: challenge.nombre_desafio,
+        proponente_contacto: challenge.proponente_contacto,
+        proponente_nombre: challenge.proponente_nombre,
+      });
+
       setSuccessMessage(
         "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
       );
+      setEmailNotice(confirmationEmailNotice);
       form.reset();
       setTechnicalError(null);
       setFieldErrors({});
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      formTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     } catch (error) {
       console.error("Supabase insert error", error);
       setErrorMessage(
@@ -440,7 +509,7 @@ export function ChallengeForm() {
   }
 
   return (
-    <div className="space-y-8">
+    <div ref={formTopRef} className="space-y-8">
       {successMessage ? (
         <div
           className="rounded-lg border border-teal-200 bg-teal-50 p-5"
@@ -452,6 +521,17 @@ export function ChallengeForm() {
           <p className="mt-2 text-sm leading-6 text-slate-700">
             {successMessage}
           </p>
+          {emailNotice ? (
+            <p
+              className={`mt-2 text-sm leading-6 ${
+                emailNotice.tone === "success"
+                  ? "text-teal-800"
+                  : "text-amber-800"
+              }`}
+            >
+              {emailNotice.message}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

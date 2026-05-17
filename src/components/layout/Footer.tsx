@@ -12,7 +12,7 @@ export function Footer() {
           aria-label="Universidad de Santiago de Chile"
           className="inline-flex w-full max-w-[220px] items-center"
           href="https://www.usach.cl"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           target="_blank"
         >
           <Image
@@ -85,20 +85,23 @@ export function Footer() {
         <div className="border-t border-white/10 pt-4 text-xs leading-5 text-white/55">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <p>
-              Departamento de Ingeniería Industrial | Universidad de Santiago de
-              Chile
-            </p>
-            <p>
-              Foto principal: Gatotienesueño,{" "}
               <a
-                href="https://commons.wikimedia.org/wiki/File:Casa_Central_USACH.jpg"
-                className="underline decoration-white/25 underline-offset-4 transition hover:text-white"
-                target="_blank"
+                className={linkClassName}
+                href="https://www.ingenieriaindustrial-usach.cl/"
                 rel="noopener noreferrer"
+                target="_blank"
               >
-                Casa Central USACH
+                Departamento de Ingeniería Industrial
+              </a>{" "}
+              |{" "}
+              <a
+                className={linkClassName}
+                href="https://www.usach.cl"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Universidad de Santiago de Chile
               </a>
-              , CC BY 4.0.
             </p>
           </div>
         </div>
