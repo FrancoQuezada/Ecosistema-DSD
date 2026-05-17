@@ -20,31 +20,36 @@ const footerBlocks = [
 
 export function Footer() {
   return (
-    <footer className="border-t-2 border-[#12c7c0] bg-[#111a24] text-white">
+    <footer className="bg-[#0b1621] text-white">
+      <div className="h-1 bg-[#12c7c0]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
-        <div className="grid gap-10 md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] lg:gap-14">
-          <div className="flex items-start">
-            <div>
+        <div className="grid gap-10 lg:grid-cols-[300px_1fr] lg:gap-16">
+          <div className="max-w-xs">
+            <div className="inline-flex rounded-lg bg-white/[0.03] p-4 ring-1 ring-white/10">
               <Image
                 src="/logos/usach-placeholder.svg"
-                alt="Placeholder del logo USACH. Reemplazar por el logotipo oficial de la Universidad de Santiago de Chile."
-                width={172}
-                height={78}
-                className="h-auto w-40 md:w-44"
+                alt="Marca referencial USACH. Reemplazar por el logotipo oficial de la Universidad de Santiago de Chile."
+                width={236}
+                height={86}
+                className="h-auto w-56"
               />
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-3">
             {footerBlocks.map((block) => (
-              <section key={block.id} aria-labelledby={`footer-${block.id}`}>
+              <section
+                key={block.id}
+                aria-labelledby={`footer-${block.id}`}
+                className="border-t border-white/12 pt-5"
+              >
                 <h2
                   id={`footer-${block.id}`}
-                  className="text-base font-semibold text-white"
+                  className="text-sm font-semibold uppercase tracking-[0.14em] text-white"
                 >
                   {block.title}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
+                <p className="mt-4 text-sm leading-6 text-slate-300">
                   {block.text}
                 </p>
               </section>
@@ -52,8 +57,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-5">
-          <p className="text-xs leading-5 text-slate-400">
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs leading-5 text-slate-400 md:flex-row md:items-center md:justify-between">
+          <p>Departamento de Ingeniería Industrial | Universidad de Santiago de Chile</p>
+          <p>
             Foto principal: Gatotienesueño,{" "}
             <a
               href="https://commons.wikimedia.org/wiki/File:Casa_Central_USACH.jpg"

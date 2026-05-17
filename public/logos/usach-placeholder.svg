@@ -1,12 +1,9 @@
-<svg width="344" height="156" viewBox="0 0 344 156" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Placeholder logo USACH</title>
-  <desc id="desc">Marca temporal para reemplazar por el logo oficial USACH en versión blanca.</desc>
-  <rect width="344" height="156" rx="12" fill="#17212B"/>
-  <rect x="1" y="1" width="342" height="154" rx="11" stroke="#12C7C0" stroke-opacity="0.55" stroke-width="2"/>
-  <path d="M50 43h53v16H66v17h31v16H66v21h-16V43Z" fill="white"/>
-  <path d="M119 43h16v42c0 9 5 14 14 14 8 0 14-5 14-14V43h16v43c0 18-12 29-30 29s-30-11-30-29V43Z" fill="white"/>
-  <path d="M195 43h18l31 70h-18l-5-13h-35l-5 13h-17l31-70Zm20 42-11-26-11 26h22Z" fill="white"/>
-  <path d="M258 43h16v26h31V43h16v70h-16V85h-31v28h-16V43Z" fill="white"/>
-  <path d="M50 128h271" stroke="#12C7C0" stroke-width="5" stroke-linecap="round"/>
-  <text x="50" y="139" fill="#B9C6D2" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2">LOGO OFICIAL PENDIENTE</text>
+<svg width="472" height="172" viewBox="0 0 472 172" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Marca referencial USACH</title>
+  <desc id="desc">Placeholder en estilo institucional para reemplazar por el logo oficial USACH autorizado para web.</desc>
+  <rect x="0" y="0" width="58" height="172" rx="10" fill="#12C7C0"/>
+  <rect x="16" y="18" width="26" height="136" rx="4" fill="#0B1621" fill-opacity="0.25"/>
+  <text x="92" y="112" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800" letter-spacing="2">USACH</text>
+  <path d="M93 136h377" stroke="#12C7C0" stroke-width="5" stroke-linecap="round"/>
+  <text x="94" y="158" fill="#CBD5E1" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.7">UNIVERSIDAD DE SANTIAGO DE CHILE</text>
 </svg>
