@@ -12,6 +12,7 @@ El sitio actual es una primera versión institucional: presenta la narrativa pú
 - React 19
 - Supabase JS
 - Resend
+- Simple Icons
 - Datos mock en módulos TypeScript
 
 ## Herramientas del ecosistema
@@ -68,6 +69,8 @@ El sitio actual es una primera versión institucional: presenta la narrativa pú
 - ESLint
 - Prettier
 - Playwright, futuro
+
+Nota: los logos de herramientas visibles en la landing se renderizan localmente con `simple-icons`. Cuando un ícono no está disponible en esa dependencia, se usa un fallback textual con iniciales.
 
 ## Rutas principales
 
