@@ -3,11 +3,18 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  getSupabaseBrowserClient,
+  getSupabaseEnvDiagnostics,
+} from "@/lib/supabase/client";
 import type { Challenge, NivelAccesoDatos, TipoProponente } from "@/lib/types";
 
 function getValue(formData: FormData, field: keyof Challenge) {
   return formData.get(field)?.toString().trim() ?? "";
+}
+
+function formatDetectedVariable(isPresent: boolean) {
+  return isPresent ? "sí" : "no";
 }
 
 function FieldHelp({ children }: { children?: string }) {
@@ -243,11 +250,16 @@ export function ChallengeForm() {
       return;
     }
 
+    const diagnostics = getSupabaseEnvDiagnostics();
     const supabase = getSupabaseBrowserClient();
 
     if (!supabase) {
       setErrorMessage(
-        "No se pudo conectar con Supabase. Revisa las variables de entorno.",
+        `Supabase no está configurado en esta versión desplegada. Variables detectadas: URL = ${formatDetectedVariable(
+          diagnostics.hasSupabaseUrl,
+        )}, ANON_KEY = ${formatDetectedVariable(
+          diagnostics.hasSupabaseAnonKey,
+        )}.`,
       );
       return;
     }
