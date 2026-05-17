@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ecosistema de Desarrollo de Soluciones Digitales
 
-## Getting Started
+MVP web y operacional para el Departamento de Ingeniería Industrial de la Universidad de Santiago de Chile. La plataforma organiza un ecosistema académico que transforma desafíos reales en prototipos, MVP, pilotos y soluciones digitales transferibles.
 
-First, run the development server:
+## Tech stack
+
+- Next.js 16 con App Router
+- TypeScript
+- Tailwind CSS v4
+- React 19
+- Datos mock en módulos TypeScript
+
+## Rutas principales
+
+- `/`: sitio público institucional
+- `/desafios`: banco de desafíos y criterios de evaluación
+- `/desafios/nuevo`: formulario de postulación de desafíos
+- `/portafolio`: portafolio de soluciones digitales
+- `/admin/desafios`: panel interno MVP con desafíos mock
+
+## Instalación
+
+```bash
+npm install
+```
+
+## Desarrollo local
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Luego abre `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Limitaciones actuales
 
-To learn more about Next.js, take a look at the following resources:
+- No hay base de datos real.
+- No hay autenticación ni control de acceso.
+- El formulario guarda una copia local en `localStorage`.
+- El panel admin usa datos mock desde `src/data/challenges.ts`.
+- Los enlaces de demo y repositorio del portafolio son placeholders.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Integración futura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+La estructura separa tipos, scoring, datos y componentes para reemplazar los mocks por Supabase o PostgreSQL. Ver:
 
-## Deploy on Vercel
+- `docs/data-model.md`
+- `docs/roadmap.md`
+- `docs/deployment.md`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No se incluyen credenciales, secretos ni servicios externos configurados.
