@@ -54,6 +54,37 @@ const participants = [
   },
 ];
 
+const toolGroups = [
+  {
+    title: "IA y asistencia al desarrollo",
+    tools: ["ChatGPT", "OpenAI Codex", "Claude Code"],
+  },
+  {
+    title: "Código y colaboración",
+    tools: ["GitHub", "Git", "Visual Studio Code"],
+  },
+  {
+    title: "Frontend y web",
+    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Node.js / npm"],
+  },
+  {
+    title: "Datos y backend",
+    tools: ["Supabase", "PostgreSQL", "Python", "Jupyter", "Pandas"],
+  },
+  {
+    title: "Despliegue y notificaciones",
+    tools: ["Vercel", "Resend"],
+  },
+  {
+    title: "Diseño y documentación",
+    tools: ["Figma", "Overleaf / LaTeX", "Markdown", "Notion o Google Drive"],
+  },
+  {
+    title: "Calidad y prototipos",
+    tools: ["ESLint", "Prettier", "Playwright", "Streamlit"],
+  },
+];
+
 export default function Home() {
   return (
     <>
@@ -103,6 +134,44 @@ export default function Home() {
               </Badge>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <SectionHeader
+            eyebrow="Herramientas habilitantes"
+            title="Un stack de trabajo para docencia, prototipado y transferencia"
+            description="El ecosistema combina herramientas de inteligencia artificial, desarrollo web, datos, colaboración, despliegue y documentación para sostener proyectos desde la formulación del desafío hasta su validación."
+          />
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {toolGroups.map((group) => (
+              <article
+                key={group.title}
+                className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5"
+              >
+                <h3 className="text-lg font-semibold text-[#17212b]">
+                  {group.title}
+                </h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {group.tools.map((tool) => (
+                    <Badge
+                      key={tool}
+                      variant="neutral"
+                      className="px-3 py-1.5 text-xs"
+                    >
+                      {tool}
+                    </Badge>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+          <p className="mt-6 max-w-3xl text-sm leading-6 text-slate-600">
+            Playwright y algunos entornos de prototipado se consideran como
+            capacidades futuras o complementarias según el alcance de cada
+            proyecto.
+          </p>
         </div>
       </section>
 

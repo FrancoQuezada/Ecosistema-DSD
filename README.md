@@ -14,6 +14,61 @@ El sitio actual es una primera versión institucional: presenta la narrativa pú
 - Resend
 - Datos mock en módulos TypeScript
 
+## Herramientas del ecosistema
+
+### Inteligencia artificial y asistencia al desarrollo
+
+- ChatGPT
+- OpenAI Codex
+- Claude Code
+
+### Código, colaboración y control de versiones
+
+- GitHub
+- Git
+- Visual Studio Code
+
+### Frontend y desarrollo web
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Node.js / npm
+
+### Base de datos, autenticación y backend
+
+- Supabase
+- PostgreSQL
+
+### Despliegue e infraestructura
+
+- Vercel
+
+### Correos y notificaciones
+
+- Resend
+
+### Diseño, documentación y prototipado
+
+- Figma
+- Overleaf / LaTeX
+- Markdown
+- Notion o Google Drive
+
+### Datos, análisis y prototipos técnicos
+
+- Python
+- Jupyter
+- Pandas
+- Streamlit, opcional
+
+### Calidad y pruebas
+
+- ESLint
+- Prettier
+- Playwright, futuro
+
 ## Rutas principales
 
 - `/`: sitio público institucional
