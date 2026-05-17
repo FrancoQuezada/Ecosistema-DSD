@@ -22,7 +22,7 @@ import {
   siTailwindcss,
   siTypescript,
   siVercel,
-} from "simple-icons";
+} from "simple-icons/icons";
 
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
@@ -38,162 +38,207 @@ type ToolCategory =
 type Tool = {
   name: string;
   category: ToolCategory;
-  icon?: SimpleIcon;
-  fallbackInitials: string;
+  icon: SimpleIcon | null;
+  fallback: string;
+  useFallback: boolean;
 };
 
 const tools: Tool[] = [
   {
     name: "ChatGPT",
     category: "IA y asistencia al desarrollo",
-    fallbackInitials: "GPT",
+    icon: null,
+    fallback: "GPT",
+    useFallback: true,
   },
   {
     name: "OpenAI",
     category: "IA y asistencia al desarrollo",
-    fallbackInitials: "AI",
+    icon: null,
+    fallback: "AI",
+    useFallback: true,
+  },
+  {
+    name: "OpenAI Codex",
+    category: "IA y asistencia al desarrollo",
+    icon: null,
+    fallback: "Codex",
+    useFallback: true,
+  },
+  {
+    name: "Claude Code",
+    category: "IA y asistencia al desarrollo",
+    icon: null,
+    fallback: "CC",
+    useFallback: true,
   },
   {
     name: "GitHub",
     category: "Código y colaboración",
     icon: siGithub,
-    fallbackInitials: "GH",
+    fallback: "GH",
+    useFallback: false,
   },
   {
     name: "Git",
     category: "Código y colaboración",
     icon: siGit,
-    fallbackInitials: "Git",
+    fallback: "Git",
+    useFallback: false,
   },
   {
     name: "Visual Studio Code",
     category: "Código y colaboración",
-    fallbackInitials: "VS",
+    icon: null,
+    fallback: "VS",
+    useFallback: true,
   },
   {
     name: "Next.js",
     category: "Frontend y web",
     icon: siNextdotjs,
-    fallbackInitials: "N",
+    fallback: "N",
+    useFallback: false,
   },
   {
     name: "React",
     category: "Frontend y web",
     icon: siReact,
-    fallbackInitials: "R",
+    fallback: "R",
+    useFallback: false,
   },
   {
     name: "TypeScript",
     category: "Frontend y web",
     icon: siTypescript,
-    fallbackInitials: "TS",
+    fallback: "TS",
+    useFallback: false,
   },
   {
     name: "Tailwind CSS",
     category: "Frontend y web",
     icon: siTailwindcss,
-    fallbackInitials: "TW",
+    fallback: "TW",
+    useFallback: false,
   },
   {
     name: "Supabase",
     category: "Datos y backend",
     icon: siSupabase,
-    fallbackInitials: "SB",
+    fallback: "SB",
+    useFallback: false,
   },
   {
     name: "PostgreSQL",
     category: "Datos y backend",
     icon: siPostgresql,
-    fallbackInitials: "PG",
+    fallback: "PG",
+    useFallback: false,
   },
   {
     name: "Vercel",
     category: "Despliegue y comunicación",
     icon: siVercel,
-    fallbackInitials: "V",
+    fallback: "V",
+    useFallback: false,
   },
   {
     name: "Resend",
     category: "Despliegue y comunicación",
     icon: siResend,
-    fallbackInitials: "RE",
+    fallback: "RE",
+    useFallback: false,
   },
   {
     name: "Figma",
     category: "Diseño y documentación",
     icon: siFigma,
-    fallbackInitials: "FG",
+    fallback: "FG",
+    useFallback: false,
   },
   {
     name: "Overleaf",
     category: "Diseño y documentación",
     icon: siOverleaf,
-    fallbackInitials: "OL",
+    fallback: "OL",
+    useFallback: false,
   },
   {
     name: "LaTeX",
     category: "Diseño y documentación",
     icon: siLatex,
-    fallbackInitials: "TeX",
+    fallback: "TeX",
+    useFallback: false,
   },
   {
     name: "Python",
     category: "Datos y backend",
     icon: siPython,
-    fallbackInitials: "PY",
+    fallback: "PY",
+    useFallback: false,
   },
   {
     name: "Jupyter",
     category: "Datos y backend",
     icon: siJupyter,
-    fallbackInitials: "JP",
+    fallback: "JP",
+    useFallback: false,
   },
   {
     name: "Pandas",
     category: "Datos y backend",
     icon: siPandas,
-    fallbackInitials: "PD",
+    fallback: "PD",
+    useFallback: false,
   },
   {
     name: "Markdown",
     category: "Diseño y documentación",
     icon: siMarkdown,
-    fallbackInitials: "MD",
+    fallback: "MD",
+    useFallback: false,
   },
   {
     name: "Node.js",
     category: "Frontend y web",
     icon: siNodedotjs,
-    fallbackInitials: "ND",
+    fallback: "ND",
+    useFallback: false,
   },
   {
     name: "npm",
     category: "Frontend y web",
     icon: siNpm,
-    fallbackInitials: "npm",
+    fallback: "npm",
+    useFallback: false,
   },
   {
     name: "ESLint",
     category: "Calidad y prototipos",
     icon: siEslint,
-    fallbackInitials: "ES",
+    fallback: "ES",
+    useFallback: false,
   },
   {
     name: "Prettier",
     category: "Calidad y prototipos",
     icon: siPrettier,
-    fallbackInitials: "PR",
+    fallback: "PR",
+    useFallback: false,
   },
   {
     name: "Playwright",
     category: "Calidad y prototipos",
-    fallbackInitials: "PW",
+    icon: null,
+    fallback: "PW",
+    useFallback: true,
   },
   {
     name: "Streamlit",
     category: "Calidad y prototipos",
     icon: siStreamlit,
-    fallbackInitials: "ST",
+    fallback: "ST",
+    useFallback: false,
   },
 ];
 
@@ -229,10 +274,10 @@ const categorySummaries = [
 ] satisfies Array<{ category: ToolCategory; text: string }>;
 
 function ToolIcon({ tool }: { tool: Tool }) {
-  if (!tool.icon) {
+  if (tool.useFallback || !tool.icon) {
     return (
       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0f766e]/10 text-xs font-bold text-[#0f766e] sm:h-10 sm:w-10">
-        {tool.fallbackInitials}
+        {tool.fallback}
       </span>
     );
   }
