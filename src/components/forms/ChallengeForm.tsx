@@ -174,7 +174,7 @@ export function ChallengeForm() {
 
     if (!supabase) {
       setErrorMessage(
-        "Supabase no está configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+        "No se pudo conectar con Supabase. Revisa las variables de entorno.",
       );
       return;
     }
@@ -230,7 +230,7 @@ export function ChallengeForm() {
       }
 
       setSuccessMessage(
-        "Desafío enviado correctamente. El equipo del ecosistema revisará la postulación.",
+        "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
       );
       form.reset();
       window.scrollTo({ top: 0, behavior: "smooth" });
