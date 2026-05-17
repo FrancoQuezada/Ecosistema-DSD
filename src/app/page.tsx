@@ -5,8 +5,8 @@ import { CTASection } from "@/components/sections/CTASection";
 import { EcosystemAxes } from "@/components/sections/EcosystemAxes";
 import { Hero } from "@/components/sections/Hero";
 import { ProjectFlow } from "@/components/sections/ProjectFlow";
+import { SolutionTypes } from "@/components/sections/SolutionTypes";
 import { ToolsMarquee } from "@/components/sections/ToolsMarquee";
-import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { solutions } from "@/data/solutions";
 
@@ -23,17 +23,6 @@ const ecosystemHighlights = [
     title: "Continuidad y transferencia",
     text: "Los prototipos con evidencia pueden avanzar hacia laboratorio, piloto, adopción, transferencia o cierre documentado.",
   },
-];
-
-const solutionTypes = [
-  "Aplicaciones web",
-  "Dashboards",
-  "Simuladores",
-  "Herramientas con IA",
-  "Sistemas de apoyo a decisiones",
-  "Automatizaciones",
-  "Optimizadores",
-  "Prototipos transferibles",
 ];
 
 const participants = [
@@ -90,22 +79,7 @@ export default function Home() {
       <ProjectFlow />
       <EcosystemAxes />
 
-      <section className="bg-slate-50 py-24">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeader
-            eyebrow="Tipos de soluciones"
-            title="Soluciones digitales con foco en uso, evidencia y aprendizaje"
-            description="El ecosistema prioriza entregables que puedan validarse con usuarios y documentarse para continuidad académica, institucional o de transferencia."
-          />
-          <div className="mt-10 flex flex-wrap gap-3">
-            {solutionTypes.map((type) => (
-              <Badge key={type} variant="accent" className="px-4 py-2 text-sm">
-                {type}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </section>
+      <SolutionTypes />
 
       <ToolsMarquee />
 
