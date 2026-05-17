@@ -108,15 +108,114 @@ const axes: EcosystemAxis[] = [
   },
 ];
 
-const diagramPositions = [
-  "lg:left-1/2 lg:top-0 lg:-translate-x-1/2",
-  "lg:right-4 lg:top-20",
-  "lg:right-4 lg:bottom-20",
-  "lg:left-1/2 lg:bottom-0 lg:-translate-x-1/2",
-  "lg:left-4 lg:bottom-20",
-  "lg:left-4 lg:top-20",
-  "lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-[245%]",
-];
+const axesById = new Map(axes.map((axis) => [axis.id, axis]));
+
+const diagramCells = [
+  { type: "axis", axisId: "banco-desafios" },
+  { type: "axis", axisId: "taller-curso" },
+  { type: "axis", axisId: "laboratorio-continuidad" },
+  { type: "axis", axisId: "comunidad-cultura-digital" },
+  { type: "center" },
+  { type: "axis", axisId: "infraestructura-tecnologica" },
+  { type: "axis", axisId: "gobernanza-transferencia" },
+  { type: "axis", axisId: "portafolio-soluciones" },
+  { type: "note" },
+] as const;
+
+function DiagramLines() {
+  const targets = [
+    [50, 50],
+    [150, 50],
+    [250, 50],
+    [50, 150],
+    [250, 150],
+    [50, 250],
+    [150, 250],
+  ];
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-6 hidden h-[calc(100%-3rem)] w-[calc(100%-3rem)] lg:block"
+      preserveAspectRatio="none"
+      viewBox="0 0 300 300"
+    >
+      {targets.map(([x, y]) => (
+        <line
+          key={`${x}-${y}`}
+          x1="150"
+          x2={x}
+          y1="150"
+          y2={y}
+          stroke="#cbd5e1"
+          strokeDasharray="5 7"
+          strokeLinecap="round"
+          strokeWidth="1.2"
+        />
+      ))}
+      <circle
+        cx="150"
+        cy="150"
+        fill="none"
+        r="43"
+        stroke="#99f6e4"
+        strokeDasharray="6 7"
+        strokeWidth="1.4"
+      />
+    </svg>
+  );
+}
+
+function AxisButton({
+  axis,
+  isSelected,
+  onSelect,
+}: {
+  axis: EcosystemAxis;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={isSelected}
+      onClick={onSelect}
+      className={`min-h-36 rounded-lg border p-4 text-left shadow-sm transition focus:outline-none focus:ring-4 focus:ring-[#12c7c0]/25 lg:min-h-[158px] ${
+        isSelected
+          ? "border-[#0f766e] bg-[#ecfeff] shadow-md shadow-slate-900/10"
+          : "border-slate-200 bg-white hover:border-[#99f6e4] hover:bg-slate-50"
+      }`}
+    >
+      <span
+        className={`flex size-8 items-center justify-center rounded-lg text-xs font-bold ${
+          isSelected ? "bg-[#0f766e] text-white" : "bg-slate-100 text-slate-600"
+        }`}
+      >
+        {axis.number}
+      </span>
+      <span className="mt-3 block text-sm font-semibold leading-5 text-[#17212b]">
+        {axis.title}
+      </span>
+      <span className="mt-2 block text-xs leading-5 text-slate-600">
+        {axis.shortDescription}
+      </span>
+    </button>
+  );
+}
+
+function CenterNode() {
+  return (
+    <div className="flex min-h-36 flex-col items-center justify-center rounded-lg border-2 border-[#12c7c0] bg-[#0f172a] p-5 text-center shadow-lg shadow-slate-900/15 lg:min-h-[158px]">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#67e8f9]">
+        Centro
+      </p>
+      <p className="mt-2 text-xl font-semibold text-white">Ecosistema DSD</p>
+      <p className="mt-2 max-w-52 text-xs leading-5 text-slate-300">
+        Articula desafíos, proyectos, continuidad y portafolio.
+      </p>
+    </div>
+  );
+}
 
 function AxisDetail({ axis }: { axis: EcosystemAxis }) {
   const details = [
@@ -173,70 +272,51 @@ export function EcosystemAxes() {
           description="Cada eje cumple una función específica dentro del ciclo de captura, desarrollo, continuidad y transferencia de soluciones digitales."
         />
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:items-start">
+        <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)] lg:items-start">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm shadow-slate-900/5 sm:p-6">
-            <div className="relative overflow-hidden rounded-lg bg-white p-4 lg:min-h-[620px] lg:p-8">
-              <div className="pointer-events-none absolute inset-0 hidden lg:block">
-                <div className="absolute left-1/2 top-1/2 h-px w-[78%] -translate-x-1/2 bg-slate-200" />
-                <div className="absolute left-1/2 top-1/2 h-[78%] w-px -translate-y-1/2 bg-slate-200" />
-                <div className="absolute left-1/2 top-1/2 h-px w-[72%] -translate-x-1/2 rotate-45 bg-slate-200" />
-                <div className="absolute left-1/2 top-1/2 h-px w-[72%] -translate-x-1/2 -rotate-45 bg-slate-200" />
-                <div className="absolute left-1/2 top-1/2 size-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-[#99f6e4]" />
-              </div>
+            <div className="relative rounded-lg bg-white p-4 sm:p-5 lg:p-6">
+              <DiagramLines />
 
-              <div className="relative z-10 grid gap-3 sm:grid-cols-2 lg:block">
-                <div className="mb-4 flex min-h-32 flex-col items-center justify-center rounded-lg border-2 border-[#12c7c0] bg-[#0f172a] p-5 text-center shadow-lg shadow-slate-900/15 sm:col-span-2 lg:absolute lg:left-1/2 lg:top-1/2 lg:mb-0 lg:size-44 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-full">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#67e8f9]">
-                    Centro
-                  </p>
-                  <p className="mt-2 text-xl font-semibold text-white">
-                    Ecosistema DSD
-                  </p>
-                  <p className="mt-2 max-w-36 text-xs leading-5 text-slate-300">
-                    Articulación académica y aplicada
-                  </p>
-                </div>
+              <div className="relative z-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {diagramCells.map((cell) => {
+                  if (cell.type === "center") {
+                    return <CenterNode key="center" />;
+                  }
 
-                {axes.map((axis, index) => {
-                  const isSelected = axis.id === selectedAxisId;
+                  if (cell.type === "note") {
+                    return (
+                      <div
+                        key="note"
+                        className="hidden min-h-[158px] rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-500 lg:flex lg:items-center"
+                      >
+                        Selecciona un eje para revisar su función, actores y
+                        entregables dentro del ecosistema.
+                      </div>
+                    );
+                  }
+
+                  const axis = axesById.get(cell.axisId);
+
+                  if (!axis) {
+                    return null;
+                  }
 
                   return (
-                    <button
+                    <AxisButton
                       key={axis.id}
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => setSelectedAxisId(axis.id)}
-                      className={`text-left transition focus:outline-none focus:ring-4 focus:ring-[#12c7c0]/25 lg:absolute lg:w-48 ${
-                        diagramPositions[index]
-                      } rounded-lg border p-4 shadow-sm ${
-                        isSelected
-                          ? "border-[#0f766e] bg-[#ecfeff] shadow-md shadow-slate-900/10"
-                          : "border-slate-200 bg-white hover:border-[#99f6e4] hover:bg-slate-50"
-                      }`}
-                    >
-                      <span
-                        className={`flex size-8 items-center justify-center rounded-lg text-xs font-bold ${
-                          isSelected
-                            ? "bg-[#0f766e] text-white"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {axis.number}
-                      </span>
-                      <span className="mt-3 block text-sm font-semibold leading-5 text-[#17212b]">
-                        {axis.title}
-                      </span>
-                      <span className="mt-2 block text-xs leading-5 text-slate-600">
-                        {axis.shortDescription}
-                      </span>
-                    </button>
+                      axis={axis}
+                      isSelected={axis.id === selectedAxisId}
+                      onSelect={() => setSelectedAxisId(axis.id)}
+                    />
                   );
                 })}
               </div>
             </div>
           </div>
 
-          <AxisDetail axis={selectedAxis} />
+          <div className="lg:sticky lg:top-24">
+            <AxisDetail axis={selectedAxis} />
+          </div>
         </div>
       </div>
     </section>
