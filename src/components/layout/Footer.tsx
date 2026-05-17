@@ -1,24 +1,9 @@
 import Image from "next/image";
 
-const footerBlocks = [
-  {
-    id: "ecosistema-dsd",
-    title: "Ecosistema DSD",
-    text: "Ecosistema de Desarrollo de Soluciones Digitales. Departamento de Ingeniería Industrial, Universidad de Santiago de Chile.",
-  },
-  {
-    id: "equipo-colaboradores",
-    title: "Equipo y colaboradores",
-    text: "Estudiantes, académicos, ayudantes, tesistas, memoristas, unidades internas y partners.",
-  },
-  {
-    id: "alcance",
-    title: "Alcance",
-    text: "Iniciativa académica orientada al desarrollo de prototipos, MVP, pilotos y soluciones digitales aplicadas. No constituye una plataforma comercial ni un servicio institucional definitivo.",
-  },
-];
-
 export function Footer() {
+  const linkClassName =
+    "font-medium text-white underline decoration-[#00a499]/70 underline-offset-4 transition hover:text-[#5eead4] focus:outline-none focus:ring-2 focus:ring-[#00a499] focus:ring-offset-2 focus:ring-offset-[#2f3a43]";
+
   return (
     <footer className="mt-auto bg-[#2f3a43] text-white">
       <div className="h-[5px] bg-[#00a499]/85" aria-hidden="true" />
@@ -41,33 +26,58 @@ export function Footer() {
         </a>
 
         <section
-          aria-labelledby={`footer-${footerBlocks[0].id}`}
+          aria-labelledby="footer-ecosistema-dsd"
           className="border-l-[3px] border-[#00a499]/60 pl-3"
         >
-          <h2
-            id={`footer-${footerBlocks[0].id}`}
-            className="font-semibold text-white"
-          >
-            {footerBlocks[0].title}
+          <h2 id="footer-ecosistema-dsd" className="font-semibold text-white">
+            Ecosistema DSD
           </h2>
-          <p className="mt-1 leading-6 text-white/76">{footerBlocks[0].text}</p>
+          <p className="mt-1 leading-6 text-white/76">
+            Ecosistema de Desarrollo de Soluciones Digitales.
+            <br />
+            Desarrollado por{" "}
+            <a
+              className={linkClassName}
+              href="https://francoquezada.github.io/academic-page/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Dr. Franco Quezada Valenzuela
+            </a>
+            .
+          </p>
         </section>
 
         <div
-          aria-label="Créditos, colaboradores y alcance"
+          aria-label="Universidad y alcance"
           className="grid gap-4 md:justify-self-end lg:grid-cols-2"
         >
-          {footerBlocks.slice(1).map((block) => (
-            <section key={block.id} aria-labelledby={`footer-${block.id}`}>
-              <h2
-                id={`footer-${block.id}`}
-                className="font-semibold text-white"
+          <section aria-labelledby="footer-universidad">
+            <h2 id="footer-universidad" className="font-semibold text-white">
+              Universidad
+            </h2>
+            <p className="mt-1 leading-6 text-white/76">
+              <a
+                className={linkClassName}
+                href="https://www.usach.cl"
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                {block.title}
-              </h2>
-              <p className="mt-1 leading-6 text-white/76">{block.text}</p>
-            </section>
-          ))}
+                Universidad de Santiago de Chile
+              </a>
+            </p>
+          </section>
+
+          <section aria-labelledby="footer-alcance">
+            <h2 id="footer-alcance" className="font-semibold text-white">
+              Alcance
+            </h2>
+            <p className="mt-1 leading-6 text-white/76">
+              Iniciativa académica orientada al desarrollo de prototipos, MVP,
+              pilotos y soluciones digitales aplicadas. No constituye una
+              plataforma comercial ni un servicio institucional definitivo.
+            </p>
+          </section>
         </div>
       </div>
 
@@ -84,7 +94,7 @@ export function Footer() {
                 href="https://commons.wikimedia.org/wiki/File:Casa_Central_USACH.jpg"
                 className="underline decoration-white/25 underline-offset-4 transition hover:text-white"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 Casa Central USACH
               </a>
