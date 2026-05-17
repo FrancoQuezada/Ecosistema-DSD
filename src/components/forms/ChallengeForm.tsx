@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   getSupabaseBrowserClient,
@@ -226,6 +226,33 @@ type TechnicalErrorDetail = {
   details?: string;
 };
 
+type ConfirmationEmailFailureReason = "resend_error" | "email_not_configured";
+
+type ConfirmationEmailTechnicalDetail = {
+  reason?: ConfirmationEmailFailureReason;
+  message?: string;
+  name?: string;
+  status?: number;
+};
+
+type ConfirmationEmailNotice = {
+  tone: "success" | "warning";
+  message: string;
+  technicalDetail?: ConfirmationEmailTechnicalDetail;
+};
+
+type ConfirmationEmailResponse = {
+  ok?: boolean;
+  emailSent?: boolean;
+  message?: string;
+  name?: string;
+  reason?: ConfirmationEmailFailureReason;
+};
+
+const shouldShowEmailTechnicalDetail =
+  process.env.NODE_ENV !== "production" ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+
 const validNivelesAccesoDatos: SupabaseNivelAccesoDatos[] = [
   "publico",
   "interno",
@@ -349,10 +376,83 @@ function getUnexpectedTechnicalErrorDetail(error: unknown): TechnicalErrorDetail
   return { message: "Error inesperado sin detalle disponible." };
 }
 
+function getEmailWarningNotice(
+  technicalDetail?: ConfirmationEmailTechnicalDetail,
+): ConfirmationEmailNotice {
+  return {
+    tone: "warning",
+    message:
+      "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
+    technicalDetail,
+  };
+}
+
+function getEmailRequestErrorDetail(
+  error: unknown,
+): ConfirmationEmailTechnicalDetail {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  return {
+    message: "No fue posible consultar la ruta de confirmación por correo.",
+  };
+}
+
+async function sendConfirmationEmail({
+  proponente_nombre,
+  proponente_contacto,
+  nombre_desafio,
+}: Pick<
+  DesafioInsertPayload,
+  "proponente_nombre" | "proponente_contacto" | "nombre_desafio"
+>): Promise<ConfirmationEmailNotice> {
+  try {
+    const response = await fetch("/api/desafios/confirmacion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        proponente_nombre,
+        proponente_contacto,
+        nombre_desafio,
+      }),
+    });
+    const data = (await response.json().catch(() => null)) as
+      | ConfirmationEmailResponse
+      | null;
+
+    if (!response.ok || data?.ok === false || data?.emailSent !== true) {
+      return getEmailWarningNotice({
+        reason: data?.reason,
+        message:
+          data?.message ??
+          `La ruta de confirmación respondió con estado ${response.status}.`,
+        name: data?.name,
+        status: response.status,
+      });
+    }
+
+    return {
+      tone: "success",
+      message: "Se envió un correo de confirmación al contacto registrado.",
+    };
+  } catch (error) {
+    return getEmailWarningNotice(getEmailRequestErrorDetail(error));
+  }
+}
+
 export function ChallengeForm() {
+  const formTopRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [emailNotice, setEmailNotice] =
+    useState<ConfirmationEmailNotice | null>(null);
   const [technicalError, setTechnicalError] =
     useState<TechnicalErrorDetail | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -369,6 +469,7 @@ export function ChallengeForm() {
 
     setSuccessMessage(null);
     setErrorMessage(null);
+    setEmailNotice(null);
     setTechnicalError(null);
     setFieldErrors({});
 
@@ -421,13 +522,23 @@ export function ChallengeForm() {
         return;
       }
 
+      const confirmationEmailNotice = await sendConfirmationEmail({
+        nombre_desafio: challenge.nombre_desafio,
+        proponente_contacto: challenge.proponente_contacto,
+        proponente_nombre: challenge.proponente_nombre,
+      });
+
       setSuccessMessage(
         "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
       );
+      setEmailNotice(confirmationEmailNotice);
       form.reset();
       setTechnicalError(null);
       setFieldErrors({});
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      formTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     } catch (error) {
       console.error("Supabase insert error", error);
       setErrorMessage(
@@ -440,7 +551,7 @@ export function ChallengeForm() {
   }
 
   return (
-    <div className="space-y-8">
+    <div ref={formTopRef} className="space-y-8">
       {successMessage ? (
         <div
           className="rounded-lg border border-teal-200 bg-teal-50 p-5"
@@ -452,6 +563,48 @@ export function ChallengeForm() {
           <p className="mt-2 text-sm leading-6 text-slate-700">
             {successMessage}
           </p>
+          {emailNotice ? (
+            <div
+              className={`mt-3 rounded-md border p-3 text-sm leading-6 ${
+                emailNotice.tone === "success"
+                  ? "border-teal-200 bg-white/60 text-teal-800"
+                  : "border-amber-200 bg-amber-50 text-amber-900"
+              }`}
+            >
+              <p>{emailNotice.message}</p>
+              {emailNotice.tone === "warning" &&
+              emailNotice.technicalDetail &&
+              shouldShowEmailTechnicalDetail ? (
+                <div className="mt-3 rounded-md border border-amber-200 bg-white/70 p-3 text-xs leading-5 text-amber-900">
+                  <p className="font-semibold">Detalle técnico del correo</p>
+                  {emailNotice.technicalDetail.reason ? (
+                    <p className="mt-1">
+                      <span className="font-medium">Motivo:</span>{" "}
+                      {emailNotice.technicalDetail.reason}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.message ? (
+                    <p>
+                      <span className="font-medium">Mensaje:</span>{" "}
+                      {emailNotice.technicalDetail.message}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.name ? (
+                    <p>
+                      <span className="font-medium">Nombre:</span>{" "}
+                      {emailNotice.technicalDetail.name}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.status ? (
+                    <p>
+                      <span className="font-medium">Estado HTTP:</span>{" "}
+                      {emailNotice.technicalDetail.status}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

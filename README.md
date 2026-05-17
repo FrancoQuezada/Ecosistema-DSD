@@ -11,7 +11,63 @@ El sitio actual es una primera versión institucional: presenta la narrativa pú
 - Tailwind CSS v4
 - React 19
 - Supabase JS
+- Resend
 - Datos mock en módulos TypeScript
+
+## Herramientas del ecosistema
+
+### Inteligencia artificial y asistencia al desarrollo
+
+- ChatGPT
+- OpenAI Codex
+- Claude Code
+
+### Código, colaboración y control de versiones
+
+- GitHub
+- Git
+- Visual Studio Code
+
+### Frontend y desarrollo web
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Node.js / npm
+
+### Base de datos, autenticación y backend
+
+- Supabase
+- PostgreSQL
+
+### Despliegue e infraestructura
+
+- Vercel
+
+### Correos y notificaciones
+
+- Resend
+
+### Diseño, documentación y prototipado
+
+- Figma
+- Overleaf / LaTeX
+- Markdown
+- Notion o Google Drive
+
+### Datos, análisis y prototipos técnicos
+
+- Python
+- Jupyter
+- Pandas
+- Streamlit, opcional
+
+### Calidad y pruebas
+
+- ESLint
+- Prettier
+- Playwright, futuro
 
 ## Rutas principales
 
@@ -67,6 +123,19 @@ Configuración en Vercel:
 4. Redeployar para que las variables queden disponibles en build/runtime.
 
 Limitación actual: el formulario público puede enviar desafíos, pero la gestión administrativa real todavía requiere autenticación, roles y políticas de acceso. El panel `/admin/desafios` sigue usando datos mock.
+
+## Correos de confirmación
+
+El formulario de `/desafios/nuevo` usa Resend solo desde el servidor para enviar un correo de confirmación después de registrar el desafío en Supabase. La clave de Resend nunca debe usar prefijo `NEXT_PUBLIC_` ni ejecutarse desde el navegador.
+
+Variables requeridas en Vercel para habilitar el envío:
+
+```bash
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+```
+
+Si Resend no está configurado o el correo falla, la postulación sigue quedando registrada en Supabase. El correo confirma solo la recepción de la postulación.
 
 ## Limitaciones actuales
 
