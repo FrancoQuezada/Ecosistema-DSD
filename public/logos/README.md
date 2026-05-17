@@ -1,5 +1,7 @@
 # Logos institucionales
 
-`usach-placeholder.svg` es una marca referencial temporal usada por el footer.
+`usach-s1.png` fue copiado desde el repositorio `FrancoQuezada/pension-clara-base`, ruta:
 
-Cuando esté disponible el archivo oficial, reemplazarlo por una versión blanca del logo USACH autorizada para uso web. Mantener una relación visual similar y actualizar la referencia en `src/components/layout/Footer.tsx` si cambia el nombre del archivo.
+`public/Set-Imagotipos-Secundarios-2023/Usach S1.png`
+
+El footer aplica `brightness-0 invert` para usarlo como marca blanca sobre fondo institucional oscuro, siguiendo el estilo del footer fuente.
