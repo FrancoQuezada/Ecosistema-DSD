@@ -1,6 +1,7 @@
 type FlowStepProps = {
   index: number;
   title: string;
+  subtitle?: string;
   description?: string;
   compact?: boolean;
 };
@@ -8,6 +9,7 @@ type FlowStepProps = {
 export function FlowStep({
   index,
   title,
+  subtitle,
   description,
   compact = false,
 }: FlowStepProps) {
@@ -25,6 +27,11 @@ export function FlowStep({
           >
             {title}
           </p>
+          {subtitle ? (
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
+              {subtitle}
+            </p>
+          ) : null}
           {description ? (
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {description}
