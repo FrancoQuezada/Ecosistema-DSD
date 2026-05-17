@@ -10,8 +10,12 @@ export type SupabaseEnvDiagnostics = {
 };
 
 export function getSupabaseEnvDiagnostics(): SupabaseEnvDiagnostics {
-  const hasSupabaseUrl = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
-  const hasSupabaseAnonKey = Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const hasSupabaseUrl = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim(),
+  );
+  const hasSupabaseAnonKey = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(),
+  );
 
   return {
     hasSupabaseUrl,
@@ -30,8 +34,8 @@ function logDevEnvStatus(diagnostics: SupabaseEnvDiagnostics) {
 }
 
 export function getSupabaseBrowserClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   const diagnostics = getSupabaseEnvDiagnostics();
 
   logDevEnvStatus(diagnostics);
@@ -41,11 +45,7 @@ export function getSupabaseBrowserClient() {
   }
 
   if (!browserClient) {
-    try {
-      browserClient = createClient(supabaseUrl, supabaseAnonKey);
-    } catch {
-      return null;
-    }
+    browserClient = createClient(supabaseUrl, supabaseAnonKey);
   }
 
   return browserClient;

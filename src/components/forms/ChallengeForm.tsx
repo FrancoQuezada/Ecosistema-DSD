@@ -251,9 +251,8 @@ export function ChallengeForm() {
     }
 
     const diagnostics = getSupabaseEnvDiagnostics();
-    const supabase = getSupabaseBrowserClient();
 
-    if (!supabase) {
+    if (!diagnostics.isSupabaseConfigured) {
       setErrorMessage(
         `Supabase no está configurado en esta versión desplegada. Variables detectadas: URL = ${formatDetectedVariable(
           diagnostics.hasSupabaseUrl,
@@ -304,6 +303,15 @@ export function ChallengeForm() {
     setIsSubmitting(true);
 
     try {
+      const supabase = getSupabaseBrowserClient();
+
+      if (!supabase) {
+        setErrorMessage(
+          "Las variables de Supabase fueron detectadas, pero no fue posible inicializar el cliente.",
+        );
+        return;
+      }
+
       const { error } = await supabase.from("desafios").insert(challenge);
 
       if (error) {
