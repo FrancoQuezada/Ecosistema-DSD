@@ -44,6 +44,7 @@ function InputField({
   required,
   placeholder,
   helper,
+  error,
 }: {
   label: string;
   name: keyof Challenge;
@@ -51,18 +52,30 @@ function InputField({
   required?: boolean;
   placeholder?: string;
   helper?: string;
+  error?: string;
 }) {
+  const fieldId = `field-${name}`;
+  const errorId = `${fieldId}-error`;
+
   return (
     <label className="block">
       <FieldLabel label={label} required={required} />
       <input
+        id={fieldId}
         name={name}
         type={type}
         required={required}
         placeholder={placeholder}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? errorId : undefined}
         className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-[#17212b] outline-none transition placeholder:text-slate-400 focus:border-[#0f766e] focus:ring-4 focus:ring-[#0f766e]/10"
       />
       <FieldHelp>{helper}</FieldHelp>
+      {error ? (
+        <span id={errorId} className="mt-1 block text-xs leading-5 text-red-700">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -74,6 +87,7 @@ function TextAreaField({
   rows = 4,
   placeholder,
   helper,
+  error,
 }: {
   label: string;
   name: keyof Challenge;
@@ -81,18 +95,30 @@ function TextAreaField({
   rows?: number;
   placeholder?: string;
   helper?: string;
+  error?: string;
 }) {
+  const fieldId = `field-${name}`;
+  const errorId = `${fieldId}-error`;
+
   return (
     <label className="block">
       <FieldLabel label={label} required={required} />
       <textarea
+        id={fieldId}
         name={name}
         required={required}
         rows={rows}
         placeholder={placeholder}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? errorId : undefined}
         className="mt-2 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-[#17212b] outline-none transition placeholder:text-slate-400 focus:border-[#0f766e] focus:ring-4 focus:ring-[#0f766e]/10"
       />
       <FieldHelp>{helper}</FieldHelp>
+      {error ? (
+        <span id={errorId} className="mt-1 block text-xs leading-5 text-red-700">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -153,10 +179,44 @@ type DesafioInsert = Omit<Challenge, "id_desafio" | "estado_desafio"> & {
   estado_desafio: "recibido";
 };
 
+type FieldErrors = Partial<Record<keyof Challenge, string>>;
+
+const requiredFields = [
+  { name: "nombre_desafio", label: "Nombre del desafío" },
+  { name: "proponente_nombre", label: "Nombre del proponente" },
+  { name: "proponente_contacto", label: "Contacto" },
+  { name: "descripcion_problema", label: "Descripción del problema" },
+] satisfies Array<{ name: keyof Challenge; label: string }>;
+
+function validateRequiredFields(formData: FormData) {
+  return requiredFields.reduce<FieldErrors>((errors, field) => {
+    if (!getValue(formData, field.name)) {
+      errors[field.name] = `${field.label} es obligatorio.`;
+    }
+
+    return errors;
+  }, {});
+}
+
+function focusFirstInvalidField(form: HTMLFormElement, errors: FieldErrors) {
+  const firstInvalidField = requiredFields.find((field) => errors[field.name]);
+
+  if (!firstInvalidField) {
+    return;
+  }
+
+  const element = form.elements.namedItem(firstInvalidField.name);
+
+  if (element instanceof HTMLElement) {
+    element.focus();
+  }
+}
+
 export function ChallengeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -167,10 +227,23 @@ export function ChallengeForm() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const supabase = getSupabaseBrowserClient();
 
     setSuccessMessage(null);
     setErrorMessage(null);
+    setFieldErrors({});
+
+    const validationErrors = validateRequiredFields(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      setErrorMessage(
+        "Revisa los campos obligatorios marcados antes de enviar el desafío.",
+      );
+      focusFirstInvalidField(form, validationErrors);
+      return;
+    }
+
+    const supabase = getSupabaseBrowserClient();
 
     if (!supabase) {
       setErrorMessage(
@@ -222,9 +295,7 @@ export function ChallengeForm() {
       const { error } = await supabase.from("desafios").insert(challenge);
 
       if (error) {
-        setErrorMessage(
-          "No fue posible enviar el desafío. Intenta nuevamente o contacta al equipo del ecosistema.",
-        );
+        setErrorMessage(`Supabase informó un error: ${error.message}`);
         console.error("Error al insertar desafío en Supabase", error);
         return;
       }
@@ -233,6 +304,7 @@ export function ChallengeForm() {
         "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
       );
       form.reset();
+      setFieldErrors({});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setErrorMessage(
@@ -272,6 +344,7 @@ export function ChallengeForm() {
 
       <form
         onSubmit={handleSubmit}
+        noValidate
         className="space-y-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 md:p-8"
       >
         <div className="border-b border-slate-200 pb-6">
@@ -295,23 +368,21 @@ export function ChallengeForm() {
             required
             placeholder="Ej. Seguimiento de solicitudes internas"
             helper="Usa un nombre breve y específico."
+            error={fieldErrors.nombre_desafio}
           />
           <InputField
             label="Origen del desafío"
             name="origen_desafio"
-            required
             placeholder="Unidad, curso, socio o iniciativa"
           />
           <InputField
             label="Área de aplicación"
             name="area_aplicacion"
-            required
             placeholder="Gestión académica, operaciones, vinculación, etc."
           />
           <InputField
             label="Tipo de solución esperada"
             name="tipo_solucion_esperada"
-            required
             placeholder="Aplicación web, dashboard, simulador, IA, etc."
           />
         </FormSection>
@@ -324,6 +395,7 @@ export function ChallengeForm() {
             label="Nombre del proponente"
             name="proponente_nombre"
             required
+            error={fieldErrors.proponente_nombre}
           />
           <InputField
             label="Contacto"
@@ -331,16 +403,15 @@ export function ChallengeForm() {
             type="email"
             required
             helper="Correo de contacto para coordinación inicial."
+            error={fieldErrors.proponente_contacto}
           />
           <InputField
             label="Unidad u organización"
             name="unidad_organizacion"
-            required
           />
           <SelectField
             label="Tipo de proponente"
             name="tipo_proponente"
-            required
             options={[
               { value: "unidad_interna", label: "Unidad interna" },
               { value: "academico", label: "Académico/a" },
@@ -368,13 +439,13 @@ export function ChallengeForm() {
               required
               placeholder="Describe qué ocurre, a quién afecta, dónde aparece y por qué importa."
               helper="Mientras más claro sea el problema, mejor se puede priorizar."
+              error={fieldErrors.descripcion_problema}
             />
           </div>
           <div className="md:col-span-2">
             <TextAreaField
               label="Necesidad u oportunidad"
               name="necesidad_oportunidad"
-              required
               placeholder="Explica qué cambio se busca habilitar o qué oportunidad se quiere aprovechar."
             />
           </div>
@@ -394,13 +465,11 @@ export function ChallengeForm() {
           <InputField
             label="Usuario objetivo"
             name="usuario_objetivo"
-            required
             placeholder="Personas o roles que usarían la solución"
           />
           <InputField
             label="Stakeholder principal"
             name="stakeholder_principal"
-            required
             placeholder="Unidad o persona que toma decisiones sobre el problema"
           />
           <div className="md:col-span-2">
@@ -413,7 +482,6 @@ export function ChallengeForm() {
           <SelectField
             label="Nivel de acceso a datos"
             name="nivel_acceso_datos"
-            required
             options={[
               { value: "por_definir", label: "Por definir" },
               { value: "sin_datos", label: "Sin datos disponibles aún" },
@@ -432,7 +500,6 @@ export function ChallengeForm() {
             <TextAreaField
               label="Impacto esperado"
               name="impacto_esperado"
-              required
               placeholder="Describe beneficios esperados para usuarios, unidades o comunidad."
             />
           </div>
@@ -440,7 +507,6 @@ export function ChallengeForm() {
             <TextAreaField
               label="Beneficiarios"
               name="beneficiarios"
-              required
               placeholder="Indica quiénes se beneficiarían directa o indirectamente."
             />
           </div>
@@ -481,16 +547,27 @@ export function ChallengeForm() {
 
         <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs leading-5 text-slate-500">
-            Este MVP no envía datos a servicios externos ni reemplaza un proceso
-            institucional definitivo.
+            Este MVP registra postulaciones en Supabase. La gestión interna
+            seguirá usando datos mock hasta incorporar autenticación y roles.
           </p>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-lg bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-slate-400"
-          >
-            {isSubmitting ? "Enviando..." : "Enviar desafío"}
-          </button>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-lg bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              {isSubmitting ? "Enviando..." : "Enviar desafío"}
+            </button>
+            {isSubmitting ? (
+              <span
+                className="text-xs font-medium text-[#0f766e]"
+                role="status"
+                aria-live="polite"
+              >
+                Enviando desafío a Supabase...
+              </span>
+            ) : null}
+          </div>
         </div>
       </form>
     </div>

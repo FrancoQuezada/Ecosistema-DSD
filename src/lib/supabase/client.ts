@@ -11,7 +11,11 @@ export function getSupabaseBrowserClient() {
   }
 
   if (!browserClient) {
-    browserClient = createClient(supabaseUrl, supabaseAnonKey);
+    try {
+      browserClient = createClient(supabaseUrl, supabaseAnonKey);
+    } catch {
+      return null;
+    }
   }
 
   return browserClient;
