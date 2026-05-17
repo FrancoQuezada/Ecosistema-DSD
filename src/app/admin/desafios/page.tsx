@@ -71,9 +71,8 @@ export default function AdminChallengesPage() {
               Alcance de esta versión
             </p>
             <p className="mt-2 text-sm leading-6 text-cyan-900/80">
-              El panel muestra desafíos y evaluaciones de ejemplo desde archivos
-              TypeScript. En una etapa futura deberá conectarse a base de datos,
-              autenticación y permisos antes de usarse como panel interno real.
+              Versión preliminar: este panel utiliza datos mock. La gestión real
+              requerirá autenticación y roles.
             </p>
           </div>
         </div>

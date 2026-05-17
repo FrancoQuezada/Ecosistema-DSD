@@ -3,9 +3,8 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Challenge, NivelAccesoDatos, TipoProponente } from "@/lib/types";
-
-const storageKey = "ecosistema-dsd-local-challenges";
 
 function getValue(formData: FormData, field: keyof Challenge) {
   return formData.get(field)?.toString().trim() ?? "";
@@ -16,7 +15,11 @@ function FieldHelp({ children }: { children?: string }) {
     return null;
   }
 
-  return <span className="mt-1 block text-xs leading-5 text-slate-500">{children}</span>;
+  return (
+    <span className="mt-1 block text-xs leading-5 text-slate-500">
+      {children}
+    </span>
+  );
 }
 
 function FieldLabel({
@@ -146,17 +149,37 @@ function FormSection({
   );
 }
 
-export function ChallengeForm() {
-  const [submittedChallenge, setSubmittedChallenge] =
-    useState<Challenge | null>(null);
+type DesafioInsert = Omit<Challenge, "id_desafio" | "estado_desafio"> & {
+  estado_desafio: "recibido";
+};
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+export function ChallengeForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const challenge: Challenge = {
-      id_desafio: `LOCAL-${Date.now()}`,
+    const supabase = getSupabaseBrowserClient();
+
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    if (!supabase) {
+      setErrorMessage(
+        "Supabase no está configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      );
+      return;
+    }
+
+    const challenge: DesafioInsert = {
       nombre_desafio: getValue(formData, "nombre_desafio"),
       origen_desafio: getValue(formData, "origen_desafio"),
       proponente_nombre: getValue(formData, "proponente_nombre"),
@@ -190,40 +213,60 @@ export function ChallengeForm() {
       horizonte_desarrollo: getValue(formData, "horizonte_desarrollo"),
       potencial_continuidad: getValue(formData, "potencial_continuidad"),
       observaciones: getValue(formData, "observaciones"),
-      estado_desafio: "postulado",
+      estado_desafio: "recibido",
     };
 
-    const stored = window.localStorage.getItem(storageKey);
-    const previousChallenges = stored
-      ? (JSON.parse(stored) as Challenge[])
-      : [];
+    setIsSubmitting(true);
 
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify([challenge, ...previousChallenges]),
-    );
-    console.info("Nuevo desafío DSD registrado localmente", challenge);
+    try {
+      const { error } = await supabase.from("desafios").insert(challenge);
 
-    setSubmittedChallenge(challenge);
-    form.reset();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+      if (error) {
+        setErrorMessage(
+          "No fue posible enviar el desafío. Intenta nuevamente o contacta al equipo del ecosistema.",
+        );
+        console.error("Error al insertar desafío en Supabase", error);
+        return;
+      }
+
+      setSuccessMessage(
+        "Desafío enviado correctamente. El equipo del ecosistema revisará la postulación.",
+      );
+      form.reset();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setErrorMessage(
+        "No fue posible enviar el desafío. Intenta nuevamente o contacta al equipo del ecosistema.",
+      );
+      console.error("Error inesperado al insertar desafío en Supabase", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <div className="space-y-8">
-      {submittedChallenge ? (
-        <div className="rounded-lg border border-teal-200 bg-teal-50 p-5">
+      {successMessage ? (
+        <div
+          className="rounded-lg border border-teal-200 bg-teal-50 p-5"
+          role="status"
+        >
           <p className="font-semibold text-[#0f766e]">
             Desafío recibido para revisión inicial
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-700">
-            Se registró localmente como{" "}
-            <span className="font-mono font-semibold">
-              {submittedChallenge.id_desafio}
-            </span>
-            . Esta versión es estática; en una etapa futura el envío se
-            conectará a una base de datos y a un flujo de revisión.
+            {successMessage}
           </p>
+        </div>
+      ) : null}
+
+      {errorMessage ? (
+        <div
+          className="rounded-lg border border-red-200 bg-red-50 p-5"
+          role="alert"
+        >
+          <p className="font-semibold text-red-800">No se pudo enviar</p>
+          <p className="mt-2 text-sm leading-6 text-red-700">{errorMessage}</p>
         </div>
       ) : null}
 
@@ -443,9 +486,10 @@ export function ChallengeForm() {
           </p>
           <button
             type="submit"
-            className="rounded-lg bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59]"
+            disabled={isSubmitting}
+            className="rounded-lg bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            Enviar desafío
+            {isSubmitting ? "Enviando..." : "Enviar desafío"}
           </button>
         </div>
       </form>
