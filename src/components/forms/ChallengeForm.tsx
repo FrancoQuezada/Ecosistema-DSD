@@ -7,7 +7,7 @@ import {
   getSupabaseBrowserClient,
   getSupabaseEnvDiagnostics,
 } from "@/lib/supabase/client";
-import type { Challenge, NivelAccesoDatos, TipoProponente } from "@/lib/types";
+import type { Challenge, TipoProponente } from "@/lib/types";
 
 function getValue(formData: FormData, field: keyof Challenge) {
   return formData.get(field)?.toString().trim() ?? "";
@@ -182,11 +182,76 @@ function FormSection({
   );
 }
 
-type DesafioInsert = Omit<Challenge, "id_desafio" | "estado_desafio"> & {
+type FieldErrors = Partial<Record<keyof Challenge, string>>;
+
+type SupabaseNivelAccesoDatos =
+  | "publico"
+  | "interno"
+  | "privado"
+  | "restringido";
+
+type DesafioInsertPayload = Pick<
+  Challenge,
+  | "nombre_desafio"
+  | "proponente_nombre"
+  | "proponente_contacto"
+  | "descripcion_problema"
+> & {
   estado_desafio: "recibido";
+  fecha_postulacion?: string;
+  origen_desafio?: string;
+  unidad_organizacion?: string;
+  tipo_proponente?: TipoProponente;
+  necesidad_oportunidad?: string;
+  usuario_objetivo?: string;
+  stakeholder_principal?: string;
+  sponsor_academico?: string;
+  tipo_solucion_esperada?: string;
+  area_aplicacion?: string;
+  datos_disponibles?: string;
+  nivel_acceso_datos?: SupabaseNivelAccesoDatos;
+  restricciones_datos?: string;
+  impacto_esperado?: string;
+  beneficiarios?: string;
+  factibilidad_preliminar?: string;
+  riesgos_restricciones?: string;
+  horizonte_desarrollo?: string;
+  potencial_continuidad?: string;
+  observaciones?: string;
 };
 
-type FieldErrors = Partial<Record<keyof Challenge, string>>;
+type TechnicalErrorDetail = {
+  message: string;
+  code?: string;
+  details?: string;
+};
+
+const validNivelesAccesoDatos: SupabaseNivelAccesoDatos[] = [
+  "publico",
+  "interno",
+  "privado",
+  "restringido",
+];
+
+const optionalTextFields = [
+  "origen_desafio",
+  "unidad_organizacion",
+  "necesidad_oportunidad",
+  "usuario_objetivo",
+  "stakeholder_principal",
+  "sponsor_academico",
+  "tipo_solucion_esperada",
+  "area_aplicacion",
+  "datos_disponibles",
+  "restricciones_datos",
+  "impacto_esperado",
+  "beneficiarios",
+  "factibilidad_preliminar",
+  "riesgos_restricciones",
+  "horizonte_desarrollo",
+  "potencial_continuidad",
+  "observaciones",
+] satisfies Array<keyof Challenge>;
 
 const requiredFields = [
   { name: "nombre_desafio", label: "Nombre del desafío" },
@@ -219,10 +284,77 @@ function focusFirstInvalidField(form: HTMLFormElement, errors: FieldErrors) {
   }
 }
 
+function getNivelAccesoDatos(
+  formData: FormData,
+): SupabaseNivelAccesoDatos | undefined {
+  const value = getValue(formData, "nivel_acceso_datos");
+
+  if (validNivelesAccesoDatos.includes(value as SupabaseNivelAccesoDatos)) {
+    return value as SupabaseNivelAccesoDatos;
+  }
+
+  return undefined;
+}
+
+function createDesafioInsertPayload(formData: FormData): DesafioInsertPayload {
+  const payload: DesafioInsertPayload = {
+    nombre_desafio: getValue(formData, "nombre_desafio"),
+    proponente_nombre: getValue(formData, "proponente_nombre"),
+    proponente_contacto: getValue(formData, "proponente_contacto"),
+    descripcion_problema: getValue(formData, "descripcion_problema"),
+    estado_desafio: "recibido",
+    fecha_postulacion: new Date().toISOString().slice(0, 10),
+  };
+
+  optionalTextFields.forEach((field) => {
+    const value = getValue(formData, field);
+
+    if (value) {
+      payload[field] = value;
+    }
+  });
+
+  const tipoProponente = getValue(formData, "tipo_proponente");
+
+  if (tipoProponente) {
+    payload.tipo_proponente = tipoProponente as TipoProponente;
+  }
+
+  const nivelAccesoDatos = getNivelAccesoDatos(formData);
+
+  if (nivelAccesoDatos) {
+    payload.nivel_acceso_datos = nivelAccesoDatos;
+  }
+
+  return payload;
+}
+
+function getTechnicalErrorDetail(error: {
+  message?: string;
+  code?: string;
+  details?: string | null;
+}): TechnicalErrorDetail {
+  return {
+    message: error.message ?? "Supabase no entregó un mensaje de error.",
+    code: error.code,
+    details: error.details ?? undefined,
+  };
+}
+
+function getUnexpectedTechnicalErrorDetail(error: unknown): TechnicalErrorDetail {
+  if (error instanceof Error) {
+    return { message: error.message };
+  }
+
+  return { message: "Error inesperado sin detalle disponible." };
+}
+
 export function ChallengeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [technicalError, setTechnicalError] =
+    useState<TechnicalErrorDetail | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -237,6 +369,7 @@ export function ChallengeForm() {
 
     setSuccessMessage(null);
     setErrorMessage(null);
+    setTechnicalError(null);
     setFieldErrors({});
 
     const validationErrors = validateRequiredFields(formData);
@@ -263,42 +396,7 @@ export function ChallengeForm() {
       return;
     }
 
-    const challenge: DesafioInsert = {
-      nombre_desafio: getValue(formData, "nombre_desafio"),
-      origen_desafio: getValue(formData, "origen_desafio"),
-      proponente_nombre: getValue(formData, "proponente_nombre"),
-      proponente_contacto: getValue(formData, "proponente_contacto"),
-      unidad_organizacion: getValue(formData, "unidad_organizacion"),
-      tipo_proponente: getValue(
-        formData,
-        "tipo_proponente",
-      ) as TipoProponente,
-      fecha_postulacion: new Date().toISOString().slice(0, 10),
-      descripcion_problema: getValue(formData, "descripcion_problema"),
-      necesidad_oportunidad: getValue(formData, "necesidad_oportunidad"),
-      usuario_objetivo: getValue(formData, "usuario_objetivo"),
-      stakeholder_principal: getValue(formData, "stakeholder_principal"),
-      sponsor_academico: getValue(formData, "sponsor_academico"),
-      tipo_solucion_esperada: getValue(
-        formData,
-        "tipo_solucion_esperada",
-      ),
-      area_aplicacion: getValue(formData, "area_aplicacion"),
-      datos_disponibles: getValue(formData, "datos_disponibles"),
-      nivel_acceso_datos: getValue(
-        formData,
-        "nivel_acceso_datos",
-      ) as NivelAccesoDatos,
-      restricciones_datos: getValue(formData, "restricciones_datos"),
-      impacto_esperado: getValue(formData, "impacto_esperado"),
-      beneficiarios: getValue(formData, "beneficiarios"),
-      factibilidad_preliminar: getValue(formData, "factibilidad_preliminar"),
-      riesgos_restricciones: getValue(formData, "riesgos_restricciones"),
-      horizonte_desarrollo: getValue(formData, "horizonte_desarrollo"),
-      potencial_continuidad: getValue(formData, "potencial_continuidad"),
-      observaciones: getValue(formData, "observaciones"),
-      estado_desafio: "recibido",
-    };
+    const challenge = createDesafioInsertPayload(formData);
 
     setIsSubmitting(true);
 
@@ -315,8 +413,11 @@ export function ChallengeForm() {
       const { error } = await supabase.from("desafios").insert(challenge);
 
       if (error) {
-        setErrorMessage(`Supabase informó un error: ${error.message}`);
-        console.error("Error al insertar desafío en Supabase", error);
+        console.error("Supabase insert error", error);
+        setErrorMessage(
+          "No fue posible enviar el desafío. Intenta nuevamente o contacta al equipo del ecosistema.",
+        );
+        setTechnicalError(getTechnicalErrorDetail(error));
         return;
       }
 
@@ -324,13 +425,15 @@ export function ChallengeForm() {
         "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
       );
       form.reset();
+      setTechnicalError(null);
       setFieldErrors({});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
+      console.error("Supabase insert error", error);
       setErrorMessage(
         "No fue posible enviar el desafío. Intenta nuevamente o contacta al equipo del ecosistema.",
       );
-      console.error("Error inesperado al insertar desafío en Supabase", error);
+      setTechnicalError(getUnexpectedTechnicalErrorDetail(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -359,6 +462,27 @@ export function ChallengeForm() {
         >
           <p className="font-semibold text-red-800">No se pudo enviar</p>
           <p className="mt-2 text-sm leading-6 text-red-700">{errorMessage}</p>
+          {technicalError ? (
+            <div className="mt-4 rounded-md border border-red-200 bg-white/70 p-3 text-xs leading-5 text-red-800">
+              <p className="font-semibold">Detalle técnico</p>
+              <p className="mt-1">
+                <span className="font-medium">Mensaje:</span>{" "}
+                {technicalError.message}
+              </p>
+              {technicalError.code ? (
+                <p>
+                  <span className="font-medium">Código:</span>{" "}
+                  {technicalError.code}
+                </p>
+              ) : null}
+              {technicalError.details ? (
+                <p>
+                  <span className="font-medium">Detalles:</span>{" "}
+                  {technicalError.details}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -503,11 +627,11 @@ export function ChallengeForm() {
             label="Nivel de acceso a datos"
             name="nivel_acceso_datos"
             options={[
-              { value: "por_definir", label: "Por definir" },
-              { value: "sin_datos", label: "Sin datos disponibles aún" },
+              { value: "", label: "No informado" },
               { value: "publico", label: "Público" },
               { value: "interno", label: "Interno" },
-              { value: "sensible", label: "Sensible" },
+              { value: "privado", label: "Privado" },
+              { value: "restringido", label: "Restringido" },
             ]}
           />
           <TextAreaField
