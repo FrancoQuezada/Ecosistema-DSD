@@ -32,3 +32,55 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+@keyframes tools-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tools-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: tools-marquee 56s linear infinite;
+  will-change: transform;
+}
+
+.tools-marquee-viewport:hover .tools-marquee-track,
+.tools-marquee-viewport:focus-within .tools-marquee-track {
+  animation-play-state: paused;
+}
+
+.tools-marquee-set {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.875rem;
+  padding-right: 0.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tools-marquee-track {
+    display: block;
+    width: auto;
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+
+  .tools-marquee-set {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .tools-marquee-duplicates {
+    display: none;
+  }
+
+  .tools-marquee-viewport {
+    overflow: visible;
+  }
+}
