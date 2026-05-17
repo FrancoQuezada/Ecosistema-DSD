@@ -6,18 +6,18 @@ const challengeLabels: Record<EstadoDesafio, string> = {
   evaluado: "Evaluado",
   priorizado: "Priorizado",
   seleccionado: "Seleccionado",
-  convertido_en_proyecto: "Proyecto",
+  convertido_en_proyecto: "Convertido en proyecto",
   cerrado: "Cerrado",
 };
 
 const challengeClasses: Record<EstadoDesafio, string> = {
-  postulado: "border-[#cbd5d1] bg-white text-[#52615d]",
-  en_revision: "border-[#b8c7e5] bg-[#eef2fb] text-[#174ea6]",
-  evaluado: "border-[#d2c39f] bg-[#f3f0e8] text-[#7a5b15]",
-  priorizado: "border-[#9ec7bd] bg-[#e5f2ee] text-[#0f5f55]",
-  seleccionado: "border-[#d9b268] bg-[#fbf0d8] text-[#7a4f05]",
-  convertido_en_proyecto: "border-[#a9b9d8] bg-[#e8eef9] text-[#123c7d]",
-  cerrado: "border-[#d6d6d6] bg-[#f1f1f1] text-[#5f6361]",
+  postulado: "border-slate-200 bg-white text-slate-600",
+  en_revision: "border-sky-200 bg-sky-50 text-sky-700",
+  evaluado: "border-amber-200 bg-amber-50 text-amber-800",
+  priorizado: "border-teal-200 bg-teal-50 text-teal-700",
+  seleccionado: "border-cyan-200 bg-cyan-50 text-cyan-800",
+  convertido_en_proyecto: "border-blue-200 bg-blue-50 text-blue-800",
+  cerrado: "border-slate-200 bg-slate-100 text-slate-600",
 };
 
 const maturityLabels: Record<EstadoMadurezSolucion, string> = {
@@ -29,11 +29,11 @@ const maturityLabels: Record<EstadoMadurezSolucion, string> = {
 };
 
 const maturityClasses: Record<EstadoMadurezSolucion, string> = {
-  prototipo: "border-[#b8c7e5] bg-[#eef2fb] text-[#174ea6]",
-  mvp_validado: "border-[#9ec7bd] bg-[#e5f2ee] text-[#0f5f55]",
-  piloto: "border-[#d2c39f] bg-[#f3f0e8] text-[#7a5b15]",
-  adoptada: "border-[#a9b9d8] bg-[#e8eef9] text-[#123c7d]",
-  transferible: "border-[#d9b268] bg-[#fbf0d8] text-[#7a4f05]",
+  prototipo: "border-sky-200 bg-sky-50 text-sky-700",
+  mvp_validado: "border-teal-200 bg-teal-50 text-teal-700",
+  piloto: "border-amber-200 bg-amber-50 text-amber-800",
+  adoptada: "border-blue-200 bg-blue-50 text-blue-800",
+  transferible: "border-cyan-200 bg-cyan-50 text-cyan-800",
 };
 
 type StatusBadgeProps =
@@ -58,7 +58,7 @@ export function StatusBadge(props: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold leading-none ${className}`}
     >
       {label}
     </span>

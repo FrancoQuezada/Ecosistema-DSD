@@ -2,6 +2,8 @@
 
 MVP web y operacional para el Departamento de Ingeniería Industrial de la Universidad de Santiago de Chile. La plataforma organiza un ecosistema académico que transforma desafíos reales en prototipos, MVP, pilotos y soluciones digitales transferibles.
 
+El sitio actual es una primera versión institucional estática: presenta la narrativa pública del ecosistema, un banco de desafíos con datos mock, un formulario de postulación sin backend, un portafolio de soluciones de ejemplo y un panel interno simulado.
+
 ## Tech stack
 
 - Next.js 16 con App Router
@@ -46,6 +48,7 @@ npm run build
 - El formulario guarda una copia local en `localStorage`.
 - El panel admin usa datos mock desde `src/data/challenges.ts`.
 - Los enlaces de demo y repositorio del portafolio son placeholders.
+- El logo USACH del footer usa un placeholder temporal en `public/logos/`.
 
 ## Integración futura
 
@@ -56,3 +59,11 @@ La estructura separa tipos, scoring, datos y componentes para reemplazar los moc
 - `docs/deployment.md`
 
 No se incluyen credenciales, secretos ni servicios externos configurados.
+
+## Pasos futuros
+
+- Conectar desafíos, evaluaciones, proyectos y portafolio a una base de datos.
+- Agregar autenticación institucional para las rutas internas.
+- Implementar gestión real del panel administrativo.
+- Habilitar administración de soluciones, demos, repositorios y estados de madurez.
+- Reemplazar el placeholder por el logo USACH oficial autorizado para web.

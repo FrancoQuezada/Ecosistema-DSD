@@ -1,4 +1,5 @@
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { AxisCard } from "@/components/cards/AxisCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 const axes = [
   {
@@ -33,30 +34,22 @@ const axes = [
 
 export function EcosystemAxes() {
   return (
-    <section className="bg-white py-20" id="ejes">
+    <section className="bg-white py-24" id="ejes">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <SectionHeading
-          eyebrow="Siete ejes"
-          title="Una estructura para pasar de ideas dispersas a soluciones sostenibles"
-          description="El MVP organiza el ecosistema en capacidades que permiten captar desafíos, desarrollarlos, validarlos y decidir su continuidad."
+        <SectionHeader
+          eyebrow="Ejes principales"
+          title="Siete capacidades para sostener el ecosistema"
+          description="Los ejes ordenan la operación académica: desde la captura de desafíos hasta la continuidad, transferencia y construcción de comunidad digital."
         />
 
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {axes.map((axis, index) => (
-            <article
+            <AxisCard
               key={axis.title}
-              className="rounded-lg border border-[#d8ded8] bg-[#fbfcfa] p-6"
-            >
-              <span className="mb-5 flex size-10 items-center justify-center rounded-lg bg-[#e5f2ee] text-sm font-bold text-[#0f5f55]">
-                {index + 1}
-              </span>
-              <h3 className="text-lg font-semibold text-[#17211f]">
-                {axis.title}
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-[#52615d]">
-                {axis.text}
-              </p>
-            </article>
+              index={index + 1}
+              title={axis.title}
+              text={axis.text}
+            />
           ))}
         </div>
       </div>

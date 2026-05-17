@@ -11,32 +11,55 @@ function getValue(formData: FormData, field: keyof Challenge) {
   return formData.get(field)?.toString().trim() ?? "";
 }
 
+function FieldHelp({ children }: { children?: string }) {
+  if (!children) {
+    return null;
+  }
+
+  return <span className="mt-1 block text-xs leading-5 text-slate-500">{children}</span>;
+}
+
+function FieldLabel({
+  label,
+  required,
+}: {
+  label: string;
+  required?: boolean;
+}) {
+  return (
+    <span className="text-sm font-semibold text-[#17212b]">
+      {label}
+      {required ? <span className="text-[#0f766e]"> *</span> : null}
+    </span>
+  );
+}
+
 function InputField({
   label,
   name,
   type = "text",
   required,
   placeholder,
+  helper,
 }: {
   label: string;
   name: keyof Challenge;
   type?: "text" | "email";
   required?: boolean;
   placeholder?: string;
+  helper?: string;
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-semibold text-[#17211f]">
-        {label}
-        {required ? <span className="text-[#b7791f]"> *</span> : null}
-      </span>
+      <FieldLabel label={label} required={required} />
       <input
         name={name}
         type={type}
         required={required}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-lg border border-[#cbd5d1] bg-white px-3 py-3 text-sm text-[#17211f] outline-none transition placeholder:text-[#98a5a1] focus:border-[#0f5f55] focus:ring-4 focus:ring-[#0f5f55]/10"
+        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-[#17212b] outline-none transition placeholder:text-slate-400 focus:border-[#0f766e] focus:ring-4 focus:ring-[#0f766e]/10"
       />
+      <FieldHelp>{helper}</FieldHelp>
     </label>
   );
 }
@@ -47,26 +70,26 @@ function TextAreaField({
   required,
   rows = 4,
   placeholder,
+  helper,
 }: {
   label: string;
   name: keyof Challenge;
   required?: boolean;
   rows?: number;
   placeholder?: string;
+  helper?: string;
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-semibold text-[#17211f]">
-        {label}
-        {required ? <span className="text-[#b7791f]"> *</span> : null}
-      </span>
+      <FieldLabel label={label} required={required} />
       <textarea
         name={name}
         required={required}
         rows={rows}
         placeholder={placeholder}
-        className="mt-2 w-full resize-y rounded-lg border border-[#cbd5d1] bg-white px-3 py-3 text-sm leading-6 text-[#17211f] outline-none transition placeholder:text-[#98a5a1] focus:border-[#0f5f55] focus:ring-4 focus:ring-[#0f5f55]/10"
+        className="mt-2 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-[#17212b] outline-none transition placeholder:text-slate-400 focus:border-[#0f766e] focus:ring-4 focus:ring-[#0f766e]/10"
       />
+      <FieldHelp>{helper}</FieldHelp>
     </label>
   );
 }
@@ -76,22 +99,21 @@ function SelectField({
   name,
   required,
   options,
+  helper,
 }: {
   label: string;
   name: keyof Challenge;
   required?: boolean;
   options: Array<{ value: string; label: string }>;
+  helper?: string;
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-semibold text-[#17211f]">
-        {label}
-        {required ? <span className="text-[#b7791f]"> *</span> : null}
-      </span>
+      <FieldLabel label={label} required={required} />
       <select
         name={name}
         required={required}
-        className="mt-2 w-full rounded-lg border border-[#cbd5d1] bg-white px-3 py-3 text-sm text-[#17211f] outline-none transition focus:border-[#0f5f55] focus:ring-4 focus:ring-[#0f5f55]/10"
+        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-[#17212b] outline-none transition focus:border-[#0f766e] focus:ring-4 focus:ring-[#0f766e]/10"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -99,7 +121,28 @@ function SelectField({
           </option>
         ))}
       </select>
+      <FieldHelp>{helper}</FieldHelp>
     </label>
+  );
+}
+
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="rounded-lg border border-slate-200 bg-slate-50/70 p-5 md:p-6">
+      <legend className="px-1 text-lg font-semibold text-[#17212b]">
+        {title}
+      </legend>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+      <div className="mt-6 grid gap-5 md:grid-cols-2">{children}</div>
+    </fieldset>
   );
 }
 
@@ -169,41 +212,46 @@ export function ChallengeForm() {
   return (
     <div className="space-y-8">
       {submittedChallenge ? (
-        <div className="rounded-lg border border-[#9ec7bd] bg-[#e5f2ee] p-5">
-          <p className="font-semibold text-[#0f5f55]">
-            Desafío recibido en el MVP
+        <div className="rounded-lg border border-teal-200 bg-teal-50 p-5">
+          <p className="font-semibold text-[#0f766e]">
+            Desafío recibido para revisión inicial
           </p>
-          <p className="mt-2 text-sm leading-6 text-[#52615d]">
+          <p className="mt-2 text-sm leading-6 text-slate-700">
             Se registró localmente como{" "}
             <span className="font-mono font-semibold">
               {submittedChallenge.id_desafio}
             </span>
-            . En una versión futura este envío irá a una base de datos y flujo
-            de revisión.
+            . Esta versión es estática; en una etapa futura el envío se
+            conectará a una base de datos y a un flujo de revisión.
           </p>
         </div>
       ) : null}
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-lg border border-[#d8ded8] bg-white p-5 shadow-sm shadow-[#17211f]/5 md:p-8"
+        className="space-y-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 md:p-8"
       >
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#17211f]">
+        <div className="border-b border-slate-200 pb-6">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#17212b]">
             Formulario de postulación
           </h2>
-          <p className="mt-3 text-sm leading-6 text-[#52615d]">
-            Completa los antecedentes principales para que el comité pueda
-            revisar claridad, usuarios, impacto, factibilidad y continuidad.
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+            Completa los antecedentes necesarios para evaluar claridad del
+            problema, usuarios, datos, impacto, factibilidad y potencial de
+            continuidad. Los campos marcados con * son obligatorios.
           </p>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
+        <FormSection
+          title="Identificación del desafío"
+          description="Resume la oportunidad y define el tipo de solución digital esperada."
+        >
           <InputField
             label="Nombre del desafío"
             name="nombre_desafio"
             required
-            placeholder="Ej. Automatizar seguimiento de solicitudes"
+            placeholder="Ej. Seguimiento de solicitudes internas"
+            helper="Usa un nombre breve y específico."
           />
           <InputField
             label="Origen del desafío"
@@ -211,6 +259,24 @@ export function ChallengeForm() {
             required
             placeholder="Unidad, curso, socio o iniciativa"
           />
+          <InputField
+            label="Área de aplicación"
+            name="area_aplicacion"
+            required
+            placeholder="Gestión académica, operaciones, vinculación, etc."
+          />
+          <InputField
+            label="Tipo de solución esperada"
+            name="tipo_solucion_esperada"
+            required
+            placeholder="Aplicación web, dashboard, simulador, IA, etc."
+          />
+        </FormSection>
+
+        <FormSection
+          title="Proponente y organización"
+          description="Identifica a la persona o equipo que puede entregar contexto y participar en validaciones."
+        >
           <InputField
             label="Nombre del proponente"
             name="proponente_nombre"
@@ -221,6 +287,7 @@ export function ChallengeForm() {
             name="proponente_contacto"
             type="email"
             required
+            helper="Correo de contacto para coordinación inicial."
           />
           <InputField
             label="Unidad u organización"
@@ -235,36 +302,71 @@ export function ChallengeForm() {
               { value: "unidad_interna", label: "Unidad interna" },
               { value: "academico", label: "Académico/a" },
               { value: "estudiante", label: "Estudiante" },
-              { value: "socio_externo", label: "Socio externo" },
+              { value: "socio_externo", label: "Partner externo" },
               { value: "otro", label: "Otro" },
             ]}
-          />
-          <InputField
-            label="Usuario objetivo"
-            name="usuario_objetivo"
-            required
-          />
-          <InputField
-            label="Stakeholder principal"
-            name="stakeholder_principal"
-            required
           />
           <InputField
             label="Sponsor académico"
             name="sponsor_academico"
             placeholder="Si existe"
+            helper="Opcional, pero útil para desafíos asociados a docencia o investigación."
+          />
+        </FormSection>
+
+        <FormSection
+          title="Descripción del problema"
+          description="Describe el problema de forma concreta y evita partir por una solución predeterminada."
+        >
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Descripción del problema"
+              name="descripcion_problema"
+              required
+              placeholder="Describe qué ocurre, a quién afecta, dónde aparece y por qué importa."
+              helper="Mientras más claro sea el problema, mejor se puede priorizar."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Necesidad u oportunidad"
+              name="necesidad_oportunidad"
+              required
+              placeholder="Explica qué cambio se busca habilitar o qué oportunidad se quiere aprovechar."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Riesgos o restricciones"
+              name="riesgos_restricciones"
+              placeholder="Restricciones de tiempo, operación, normativa, adopción o capacidades disponibles."
+            />
+          </div>
+        </FormSection>
+
+        <FormSection
+          title="Usuarios, datos e impacto"
+          description="Indica quién usará o validará la solución, qué datos existen y qué impacto se espera."
+        >
+          <InputField
+            label="Usuario objetivo"
+            name="usuario_objetivo"
+            required
+            placeholder="Personas o roles que usarían la solución"
           />
           <InputField
-            label="Tipo de solución esperada"
-            name="tipo_solucion_esperada"
+            label="Stakeholder principal"
+            name="stakeholder_principal"
             required
-            placeholder="Dashboard, portal, app, automatización, IA, etc."
+            placeholder="Unidad o persona que toma decisiones sobre el problema"
           />
-          <InputField
-            label="Área de aplicación"
-            name="area_aplicacion"
-            required
-          />
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Datos disponibles"
+              name="datos_disponibles"
+              placeholder="Fuentes, formatos, frecuencia, responsables y calidad preliminar."
+            />
+          </div>
           <SelectField
             label="Nivel de acceso a datos"
             name="nivel_acceso_datos"
@@ -277,68 +379,71 @@ export function ChallengeForm() {
               { value: "sensible", label: "Sensible" },
             ]}
           />
-        </div>
-
-        <div className="mt-8 grid gap-5">
-          <TextAreaField
-            label="Descripción del problema"
-            name="descripcion_problema"
-            required
-            placeholder="Describe qué ocurre, a quién afecta y por qué importa."
-          />
-          <TextAreaField
-            label="Necesidad u oportunidad"
-            name="necesidad_oportunidad"
-            required
-          />
-          <TextAreaField
-            label="Datos disponibles"
-            name="datos_disponibles"
-            placeholder="Fuentes, formatos, frecuencia, responsables."
-          />
           <TextAreaField
             label="Restricciones de datos"
             name="restricciones_datos"
+            rows={3}
             placeholder="Privacidad, permisos, anonimización o limitaciones."
           />
-          <TextAreaField
-            label="Impacto esperado"
-            name="impacto_esperado"
-            required
-          />
-          <TextAreaField
-            label="Beneficiarios"
-            name="beneficiarios"
-            required
-          />
-          <TextAreaField
-            label="Factibilidad preliminar"
-            name="factibilidad_preliminar"
-          />
-          <TextAreaField
-            label="Riesgos o restricciones"
-            name="riesgos_restricciones"
-          />
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Impacto esperado"
+              name="impacto_esperado"
+              required
+              placeholder="Describe beneficios esperados para usuarios, unidades o comunidad."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Beneficiarios"
+              name="beneficiarios"
+              required
+              placeholder="Indica quiénes se beneficiarían directa o indirectamente."
+            />
+          </div>
+        </FormSection>
+
+        <FormSection
+          title="Factibilidad y continuidad"
+          description="Entrega una primera lectura sobre alcance, tiempo, recursos y posibilidades de continuidad."
+        >
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Factibilidad preliminar"
+              name="factibilidad_preliminar"
+              placeholder="Describe disponibilidad de usuarios, datos, capacidades técnicas y alcance inicial."
+            />
+          </div>
           <TextAreaField
             label="Horizonte de desarrollo"
             name="horizonte_desarrollo"
+            rows={3}
             placeholder="Semestre, taller intensivo, laboratorio, piloto."
           />
           <TextAreaField
             label="Potencial de continuidad"
             name="potencial_continuidad"
+            rows={3}
+            placeholder="Explica si podría avanzar a laboratorio, piloto, adopción o transferencia."
           />
-          <TextAreaField label="Observaciones" name="observaciones" rows={3} />
-        </div>
+          <div className="md:col-span-2">
+            <TextAreaField
+              label="Observaciones"
+              name="observaciones"
+              rows={3}
+              placeholder="Agrega antecedentes relevantes no cubiertos en los campos anteriores."
+            />
+          </div>
+        </FormSection>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-[#d8ded8] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-[#66736f]">
-            Los campos marcados con * son obligatorios. Este MVP no envía datos
-            a servicios externos.
+        <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs leading-5 text-slate-500">
+            Este MVP no envía datos a servicios externos ni reemplaza un proceso
+            institucional definitivo.
           </p>
           <button
             type="submit"
-            className="rounded-lg bg-[#0f5f55] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0b4c44]"
+            className="rounded-lg bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59]"
           >
             Enviar desafío
           </button>

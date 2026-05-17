@@ -1,52 +1,69 @@
-import Link from "next/link";
+import Image from "next/image";
+
+const footerBlocks = [
+  {
+    id: "ecosistema-dsd",
+    title: "Ecosistema DSD",
+    text: "Ecosistema de Desarrollo de Soluciones Digitales. Departamento de Ingeniería Industrial, Universidad de Santiago de Chile.",
+  },
+  {
+    id: "equipo-colaboradores",
+    title: "Equipo y colaboradores",
+    text: "Estudiantes, académicos, ayudantes, tesistas, memoristas, unidades internas y partners.",
+  },
+  {
+    id: "alcance",
+    title: "Alcance",
+    text: "Iniciativa académica orientada al desarrollo de prototipos, MVP, pilotos y soluciones digitales aplicadas. No constituye una plataforma comercial ni un servicio institucional definitivo.",
+  },
+];
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#d8ded8] bg-[#17211f] text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
-        <div>
-          <p className="text-lg font-semibold">Ecosistema DSD</p>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-white/72">
-            Plataforma MVP para conectar desafíos reales, docencia, laboratorio,
-            investigación aplicada, continuidad y transferencia de soluciones
-            digitales.
-          </p>
-          <p className="mt-4 text-xs leading-5 text-white/50">
+    <footer className="border-t-2 border-[#12c7c0] bg-[#111a24] text-white">
+      <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+        <div className="grid gap-10 md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] lg:gap-14">
+          <div className="flex items-start">
+            <div>
+              <Image
+                src="/logos/usach-placeholder.svg"
+                alt="Placeholder del logo USACH. Reemplazar por el logotipo oficial de la Universidad de Santiago de Chile."
+                width={172}
+                height={78}
+                className="h-auto w-40 md:w-44"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {footerBlocks.map((block) => (
+              <section key={block.id} aria-labelledby={`footer-${block.id}`}>
+                <h2
+                  id={`footer-${block.id}`}
+                  className="text-base font-semibold text-white"
+                >
+                  {block.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  {block.text}
+                </p>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-white/10 pt-5">
+          <p className="text-xs leading-5 text-slate-400">
             Foto principal: Gatotienesueño,{" "}
             <a
               href="https://commons.wikimedia.org/wiki/File:Casa_Central_USACH.jpg"
-              className="underline decoration-white/30 underline-offset-4 hover:text-white"
+              className="underline decoration-slate-500 underline-offset-4 transition hover:text-white"
               target="_blank"
               rel="noreferrer"
             >
               Casa Central USACH
             </a>
             , CC BY 4.0.
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/58">
-            Plataforma
-          </p>
-          <div className="mt-4 flex flex-col gap-3 text-sm text-white/72">
-            <Link href="/desafios" className="hover:text-white">
-              Banco de desafíos
-            </Link>
-            <Link href="/desafios/nuevo" className="hover:text-white">
-              Nuevo desafío
-            </Link>
-            <Link href="/portafolio" className="hover:text-white">
-              Portafolio
-            </Link>
-          </div>
-        </div>
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/58">
-            Estado MVP
-          </p>
-          <p className="mt-4 text-sm leading-6 text-white/72">
-            Opera con datos mock y almacenamiento local del navegador para
-            formularios. No incluye autenticación ni base de datos.
           </p>
         </div>
       </div>

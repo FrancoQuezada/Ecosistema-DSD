@@ -1,59 +1,56 @@
 import Link from "next/link";
 
 import { SolutionCard } from "@/components/cards/SolutionCard";
+import { CTASection } from "@/components/sections/CTASection";
 import { EcosystemAxes } from "@/components/sections/EcosystemAxes";
 import { Hero } from "@/components/sections/Hero";
 import { ProjectFlow } from "@/components/sections/ProjectFlow";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Badge } from "@/components/ui/Badge";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { solutions } from "@/data/solutions";
 
-const purposeItems = [
-  {
-    title: "Problemas reales como punto de partida",
-    text: "Las unidades, académicos y socios externos pueden formular necesidades concretas para ser evaluadas y priorizadas.",
-  },
+const ecosystemHighlights = [
   {
     title: "Aprendizaje aplicado",
-    text: "Los estudiantes desarrollan competencias técnicas, analíticas y de producto trabajando con usuarios y restricciones reales.",
+    text: "Los estudiantes trabajan sobre problemas reales, con restricciones, usuarios y criterios de validación.",
   },
   {
-    title: "Continuidad institucional",
-    text: "Los prototipos con valor no quedan aislados: se documentan, validan y pueden pasar a laboratorio, piloto o adopción.",
+    title: "Valor institucional",
+    text: "Las unidades internas pueden transformar necesidades operacionales, docentes o analíticas en soluciones digitales evaluables.",
   },
-];
-
-const howItWorks = [
-  "Captura desafíos con información mínima para evaluar claridad, impacto, datos y factibilidad.",
-  "Prioriza iniciativas con criterios explícitos y pesos definidos para decisión académica.",
-  "Desarrolla prototipos o MVP en cursos, talleres y laboratorio con usuarios reales.",
-  "Evalúa continuidad para decidir adopción, transferencia, piloto o cierre documentado.",
+  {
+    title: "Continuidad y transferencia",
+    text: "Los prototipos con evidencia pueden avanzar hacia laboratorio, piloto, adopción, transferencia o cierre documentado.",
+  },
 ];
 
 const solutionTypes = [
-  "Aplicaciones web de gestión",
-  "Dashboards e indicadores",
-  "Automatización de procesos",
-  "Portales de vinculación",
-  "Herramientas de documentación",
-  "Analítica aplicada e IA responsable",
+  "Aplicaciones web",
+  "Dashboards",
+  "Simuladores",
+  "Herramientas con IA",
+  "Sistemas de apoyo a decisiones",
+  "Automatizaciones",
+  "Optimizadores",
+  "Prototipos transferibles",
 ];
 
 const participants = [
   {
     title: "Estudiantes",
-    text: "Participan en equipos de desarrollo, validan hipótesis y construyen entregables técnicos y documentales.",
+    text: "Desarrollan prototipos, documentan aprendizajes, validan con usuarios y fortalecen competencias técnicas y de producto.",
   },
   {
     title: "Académicos",
-    text: "Aportan patrocinio, criterios formativos, líneas de investigación y acompañamiento metodológico.",
+    text: "Acompañan el valor formativo, patrocinan desafíos, orientan criterios metodológicos y articulan investigación aplicada.",
   },
   {
     title: "Unidades internas",
-    text: "Proponen problemas, entregan contexto operativo y validan si una solución aporta valor real.",
+    text: "Proponen desafíos, entregan contexto operativo, facilitan usuarios y evalúan si la solución aporta valor institucional.",
   },
   {
-    title: "Socios externos",
-    text: "Conectan desafíos de entorno, datos, usuarios y oportunidades de transferencia aplicada.",
+    title: "Partners externos",
+    text: "Conectan problemas de entorno, datos, usuarios y oportunidades de transferencia con impacto social o productivo.",
   },
 ];
 
@@ -62,94 +59,70 @@ export default function Home() {
     <>
       <Hero />
 
-      <section className="bg-[#f7f8f5] py-20">
+      <section className="bg-slate-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Propósito"
-            title="Convertir desafíos académicos y organizacionales en soluciones digitales útiles"
-            description="El ecosistema ordena la colaboración entre docencia, investigación aplicada, unidades internas y aliados externos para crear prototipos que puedan madurar con evidencia."
-          />
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {purposeItems.map((item) => (
-              <article
-                key={item.title}
-                className="rounded-lg border border-[#d8ded8] bg-white p-6"
-              >
-                <h3 className="text-lg font-semibold text-[#17211f]">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-[#52615d]">
-                  {item.text}
-                </p>
-              </article>
-            ))}
+          <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <SectionHeader
+              eyebrow="Qué es el ecosistema"
+              title="Una plataforma académica para convertir desafíos reales en soluciones digitales aplicadas"
+              description="El Ecosistema de Desarrollo de Soluciones Digitales es una iniciativa del Departamento de Ingeniería Industrial orientada a transformar desafíos reales en prototipos, MVP, pilotos y soluciones digitales aplicadas."
+            />
+            <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-1">
+              {ecosystemHighlights.map((item) => (
+                <article
+                  key={item.title}
+                  className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5"
+                >
+                  <h3 className="text-lg font-semibold text-[#17212b]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    {item.text}
+                  </p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <SectionHeading
-            eyebrow="Cómo funciona"
-            title="Un modelo simple para capturar, desarrollar y decidir"
-            description="La plataforma parte con datos mock, pero el diseño separa tipos, datos y componentes para conectar luego una base real."
-          />
-          <div className="grid gap-4">
-            {howItWorks.map((item, index) => (
-              <div
-                key={item}
-                className="flex gap-4 rounded-lg border border-[#d8ded8] bg-[#fbfcfa] p-5"
-              >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#17211f] text-sm font-semibold text-white">
-                  {index + 1}
-                </span>
-                <p className="text-sm leading-6 text-[#52615d]">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <EcosystemAxes />
       <ProjectFlow />
+      <EcosystemAxes />
 
-      <section className="bg-white py-20">
+      <section className="bg-slate-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Tipos de solución"
-            title="Resultados digitales orientados a uso, validación y continuidad"
-            description="El foco no está en producir prototipos aislados, sino entregables con usuarios, criterios de validación y próximos pasos claros."
+          <SectionHeader
+            eyebrow="Tipos de soluciones"
+            title="Soluciones digitales con foco en uso, evidencia y aprendizaje"
+            description="El ecosistema prioriza entregables que puedan validarse con usuarios y documentarse para continuidad académica, institucional o de transferencia."
           />
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 flex flex-wrap gap-3">
             {solutionTypes.map((type) => (
-              <div
-                key={type}
-                className="rounded-lg border border-[#d8ded8] bg-[#fbfcfa] px-5 py-4 text-sm font-semibold text-[#17211f]"
-              >
+              <Badge key={type} variant="accent" className="px-4 py-2 text-sm">
                 {type}
-              </div>
+              </Badge>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[#f7f8f5] py-20">
+      <section className="bg-white py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Participación"
-            title="Roles claros para una comunidad digital académica"
-            description="El ecosistema funciona cuando cada actor entiende qué aporta y en qué etapa participa."
+          <SectionHeader
+            eyebrow="Participa"
+            title="Una comunidad digital con roles claros"
+            description="Conecta estudiantes, académicos, unidades internas y partners externos para desarrollar soluciones digitales con valor formativo, institucional, investigativo y social."
           />
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {participants.map((participant) => (
               <article
                 key={participant.title}
-                className="rounded-lg border border-[#d8ded8] bg-white p-6"
+                className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5"
               >
-                <h3 className="text-lg font-semibold text-[#17211f]">
+                <h3 className="text-lg font-semibold text-[#17212b]">
                   {participant.title}
                 </h3>
-                <p className="mt-3 text-sm leading-6 text-[#52615d]">
+                <p className="mt-3 text-sm leading-6 text-slate-600">
                   {participant.text}
                 </p>
               </article>
@@ -158,19 +131,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
+      <section className="bg-slate-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <SectionHeading
-              eyebrow="Portafolio"
-              title="Soluciones en desarrollo y continuidad"
-              description="Una primera vista de prototipos y MVP que muestran cómo los desafíos pueden transformarse en activos digitales reutilizables."
+            <SectionHeader
+              eyebrow="Portafolio destacado"
+              title="Soluciones que documentan avance y potencial de continuidad"
+              description="Una muestra inicial de soluciones digitales originadas desde desafíos reales, con estado de madurez, área de aplicación y funcionalidades clave."
             />
             <Link
               href="/portafolio"
-              className="rounded-lg border border-[#0f5f55] px-4 py-2 text-center text-sm font-semibold text-[#0f5f55] transition hover:bg-[#e5f2ee]"
+              className="rounded-lg border border-[#0f766e] px-4 py-2 text-center text-sm font-semibold text-[#0f766e] transition hover:bg-[#ecfeff]"
             >
-              Ver portafolio completo
+              Ver portafolio
             </Link>
           </div>
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
@@ -181,29 +154,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#17211f] py-20 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#f3b13d]">
-              Banco de desafíos
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-              ¿Tienes un problema que podría transformarse en solución digital?
-            </h2>
-            <p className="mt-4 text-base leading-7 text-white/72">
-              Postula un desafío para revisión inicial. El comité podrá evaluar
-              claridad, usuarios, impacto, factibilidad, datos y potencial de
-              continuidad.
-            </p>
-          </div>
-          <Link
-            href="/desafios/nuevo"
-            className="rounded-lg bg-[#f3b13d] px-5 py-3 text-center text-sm font-semibold text-[#17211f] transition hover:bg-[#ffd071]"
-          >
-            Postular desafío
-          </Link>
-        </div>
-      </section>
+      <CTASection
+        eyebrow="Banco de desafíos"
+        title="¿Tienes un problema que podría transformarse en solución digital?"
+        description="Propón un desafío para revisión inicial. El ecosistema evaluará claridad, usuarios, impacto, factibilidad, disponibilidad de datos, valor formativo y potencial de continuidad."
+        primaryHref="/desafios/nuevo"
+        primaryLabel="Proponer un desafío"
+        secondaryHref="/desafios"
+        secondaryLabel="Conocer el banco"
+      />
     </>
   );
 }

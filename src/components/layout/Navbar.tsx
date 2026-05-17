@@ -8,10 +8,10 @@ const navItems = [
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-40 border-b border-[#d8ded8] bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <Link href="/" className="group flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-lg bg-[#0f5f55] text-sm font-bold text-white">
+          <span className="flex size-11 items-center justify-center rounded-lg bg-[#111a24] text-sm font-bold text-white ring-2 ring-[#12c7c0]/40">
             DSD
           </span>
           <span className="leading-tight">
@@ -29,16 +29,16 @@ export function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-[#52615d] transition hover:bg-[#eef2ee] hover:text-[#17211f]"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-[#17212b]"
             >
               {item.label}
             </Link>
           ))}
           <Link
             href="/desafios/nuevo"
-            className="rounded-lg bg-[#0f5f55] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0b4c44]"
+            className="rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#115e59]"
           >
-            Postular desafío
+            Proponer desafío
           </Link>
         </div>
       </nav>

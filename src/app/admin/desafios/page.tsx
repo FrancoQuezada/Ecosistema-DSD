@@ -1,5 +1,7 @@
 import { ChallengeCard } from "@/components/cards/ChallengeCard";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { StatCard } from "@/components/cards/StatCard";
+import { Badge } from "@/components/ui/Badge";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { challengeEvaluations, challenges } from "@/data/challenges";
 import type { EstadoDesafio } from "@/lib/types";
 
@@ -10,115 +12,87 @@ const scoreByChallengeId = new Map(
   ]),
 );
 
-const statusLabels: Record<EstadoDesafio, string> = {
-  postulado: "Postulados",
-  en_revision: "En revisión",
-  evaluado: "Evaluados",
-  priorizado: "Priorizados",
-  seleccionado: "Seleccionados",
-  convertido_en_proyecto: "Proyectos",
-  cerrado: "Cerrados",
-};
-
 function countByStatus(status: EstadoDesafio) {
   return challenges.filter((challenge) => challenge.estado_desafio === status)
     .length;
 }
 
 export default function AdminChallengesPage() {
-  const evaluatedCount = challengeEvaluations.length;
-  const averageScore =
-    evaluatedCount > 0
-      ? Math.round(
-          challengeEvaluations.reduce(
-            (total, evaluation) => total + evaluation.puntaje_total,
-            0,
-          ) / evaluatedCount,
-        )
-      : 0;
+  const receivedCount = challenges.length;
+  const reviewingCount = countByStatus("en_revision");
+  const selectedCount = countByStatus("seleccionado");
+  const projectCount = countByStatus("convertido_en_proyecto");
 
   return (
-    <div className="bg-[#f7f8f5]">
-      <section className="bg-white py-16">
+    <div className="bg-slate-50">
+      <section className="bg-[#111a24] py-20 text-white">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Panel interno MVP"
-            title="Administración simple de desafíos"
-            description="Vista interna inicial con datos mock. No incluye autenticación todavía; en producción debe protegerse con control de acceso institucional."
-          />
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <SectionHeader
+              eyebrow="Panel interno mock"
+              title="Panel interno de desafíos"
+              description="Vista de apoyo para revisar postulaciones, estados y puntajes simulados. Esta versión usa datos mock y no reemplaza un panel administrativo institucional."
+              tone="dark"
+            />
+            <Badge variant="dark">Datos mock</Badge>
+          </div>
         </div>
       </section>
 
       <section className="py-10">
         <div className="mx-auto grid max-w-7xl gap-4 px-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
-          <div className="rounded-lg border border-[#d8ded8] bg-white p-5">
-            <p className="text-sm font-semibold text-[#52615d]">
-              Total desafíos
+          <StatCard
+            label="Desafíos recibidos"
+            value={receivedCount}
+            description="Total de registros disponibles en datos mock."
+          />
+          <StatCard
+            label="En revisión"
+            value={reviewingCount}
+            description="Desafíos pendientes de análisis o reformulación."
+          />
+          <StatCard
+            label="Seleccionados"
+            value={selectedCount}
+            description="Desafíos priorizados para desarrollo académico."
+          />
+          <StatCard
+            label="Convertidos en proyecto"
+            value={projectCount}
+            description="Desafíos ya vinculados a un proyecto."
+          />
+        </div>
+      </section>
+
+      <section className="pb-8">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-5">
+            <p className="text-sm font-semibold text-cyan-900">
+              Alcance de esta versión
             </p>
-            <p className="mt-2 text-3xl font-semibold text-[#17211f]">
-              {challenges.length}
-            </p>
-          </div>
-          <div className="rounded-lg border border-[#d8ded8] bg-white p-5">
-            <p className="text-sm font-semibold text-[#52615d]">Evaluados</p>
-            <p className="mt-2 text-3xl font-semibold text-[#17211f]">
-              {evaluatedCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-[#d8ded8] bg-white p-5">
-            <p className="text-sm font-semibold text-[#52615d]">
-              Puntaje promedio
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-[#17211f]">
-              {averageScore}/100
-            </p>
-          </div>
-          <div className="rounded-lg border border-[#d8ded8] bg-white p-5">
-            <p className="text-sm font-semibold text-[#52615d]">
-              Seleccionados
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-[#17211f]">
-              {countByStatus("seleccionado")}
+            <p className="mt-2 text-sm leading-6 text-cyan-900/80">
+              El panel muestra desafíos y evaluaciones de ejemplo desde archivos
+              TypeScript. En una etapa futura deberá conectarse a base de datos,
+              autenticación y permisos antes de usarse como panel interno real.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="pb-10">
+      <section className="pb-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="rounded-lg border border-[#d8ded8] bg-white p-6">
-            <h2 className="text-xl font-semibold text-[#17211f]">
-              Distribución por estado
-            </h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {(Object.keys(statusLabels) as EstadoDesafio[]).map((status) => (
-                <div
-                  key={status}
-                  className="rounded-lg bg-[#f7f8f5] px-4 py-3"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#66736f]">
-                    {statusLabels[status]}
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-[#17211f]">
-                    {countByStatus(status)}
-                  </p>
-                </div>
-              ))}
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <SectionHeader
+              eyebrow="Listado"
+              title="Desafíos registrados"
+              description="Tarjetas de revisión con estado, puntaje cuando existe evaluación y antecedentes principales para priorización."
+            />
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="neutral">
+                {challengeEvaluations.length} evaluaciones
+              </Badge>
+              <Badge variant="accent">{receivedCount} desafíos</Badge>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="pb-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#17211f]">
-              Lista de desafíos
-            </h2>
-            <p className="mt-2 text-sm text-[#52615d]">
-              Cada tarjeta conserva detalles útiles para revisión, evaluación y
-              priorización.
-            </p>
           </div>
 
           {challenges.length > 0 ? (
@@ -132,11 +106,11 @@ export default function AdminChallengesPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-[#cbd5d1] bg-white p-10 text-center">
-              <h3 className="text-lg font-semibold text-[#17211f]">
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
+              <h3 className="text-lg font-semibold text-[#17212b]">
                 No hay desafíos para revisar
               </h3>
-              <p className="mt-2 text-sm text-[#52615d]">
+              <p className="mt-2 text-sm text-slate-600">
                 Cuando existan postulaciones, el panel mostrará su estado y
                 ficha resumida.
               </p>
