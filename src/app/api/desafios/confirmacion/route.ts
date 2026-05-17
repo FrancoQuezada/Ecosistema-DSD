@@ -7,6 +7,13 @@ type ConfirmationEmailPayload = {
   nombre_desafio: string;
 };
 
+type EmailFailureReason = "resend_error" | "email_not_configured";
+
+type SafeEmailError = {
+  message: string;
+  name?: string;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -38,7 +45,7 @@ Departamento de Ingeniería Industrial
 Universidad de Santiago de Chile`;
 }
 
-function getSafeErrorLog(error: unknown) {
+function getSafeEmailError(error: unknown): SafeEmailError {
   if (error instanceof Error) {
     return {
       name: error.name,
@@ -59,6 +66,23 @@ function getSafeErrorLog(error: unknown) {
   return {
     message: "Error sin detalle disponible.",
   };
+}
+
+function createEmailFailureResponse(
+  reason: EmailFailureReason,
+  error: SafeEmailError,
+  status = 200,
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      emailSent: false,
+      reason,
+      message: error.message,
+      name: error.name,
+    },
+    { status },
+  );
 }
 
 export async function POST(request: Request) {
@@ -114,10 +138,9 @@ export async function POST(request: Request) {
   const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim();
 
   if (!resendApiKey || !resendFromEmail) {
-    return NextResponse.json({
-      ok: true,
-      emailSent: false,
-      message: "El correo de confirmación no está configurado.",
+    return createEmailFailureResponse("email_not_configured", {
+      message:
+        "El correo de confirmación no está configurado. Revisa RESEND_API_KEY y RESEND_FROM_EMAIL.",
     });
   }
 
@@ -132,16 +155,11 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("Resend confirmation email error", getSafeErrorLog(error));
+      const safeError = getSafeEmailError(error);
 
-      return NextResponse.json(
-        {
-          ok: false,
-          emailSent: false,
-          message: "No se pudo enviar el correo de confirmación.",
-        },
-        { status: 502 },
-      );
+      console.error("Resend confirmation email error", safeError);
+
+      return createEmailFailureResponse("resend_error", safeError, 502);
     }
 
     return NextResponse.json({
@@ -150,18 +168,13 @@ export async function POST(request: Request) {
       message: "Correo de confirmación enviado.",
     });
   } catch (error) {
+    const safeError = getSafeEmailError(error);
+
     console.error(
       "Resend confirmation email unexpected error",
-      getSafeErrorLog(error),
+      safeError,
     );
 
-    return NextResponse.json(
-      {
-        ok: false,
-        emailSent: false,
-        message: "No se pudo enviar el correo de confirmación.",
-      },
-      { status: 500 },
-    );
+    return createEmailFailureResponse("resend_error", safeError, 500);
   }
 }

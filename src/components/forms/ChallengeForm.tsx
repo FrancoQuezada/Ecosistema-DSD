@@ -226,15 +226,32 @@ type TechnicalErrorDetail = {
   details?: string;
 };
 
+type ConfirmationEmailFailureReason = "resend_error" | "email_not_configured";
+
+type ConfirmationEmailTechnicalDetail = {
+  reason?: ConfirmationEmailFailureReason;
+  message?: string;
+  name?: string;
+  status?: number;
+};
+
 type ConfirmationEmailNotice = {
   tone: "success" | "warning";
   message: string;
+  technicalDetail?: ConfirmationEmailTechnicalDetail;
 };
 
 type ConfirmationEmailResponse = {
+  ok?: boolean;
   emailSent?: boolean;
   message?: string;
+  name?: string;
+  reason?: ConfirmationEmailFailureReason;
 };
+
+const shouldShowEmailTechnicalDetail =
+  process.env.NODE_ENV !== "production" ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
 
 const validNivelesAccesoDatos: SupabaseNivelAccesoDatos[] = [
   "publico",
@@ -359,6 +376,32 @@ function getUnexpectedTechnicalErrorDetail(error: unknown): TechnicalErrorDetail
   return { message: "Error inesperado sin detalle disponible." };
 }
 
+function getEmailWarningNotice(
+  technicalDetail?: ConfirmationEmailTechnicalDetail,
+): ConfirmationEmailNotice {
+  return {
+    tone: "warning",
+    message:
+      "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
+    technicalDetail,
+  };
+}
+
+function getEmailRequestErrorDetail(
+  error: unknown,
+): ConfirmationEmailTechnicalDetail {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  return {
+    message: "No fue posible consultar la ruta de confirmación por correo.",
+  };
+}
+
 async function sendConfirmationEmail({
   proponente_nombre,
   proponente_contacto,
@@ -383,24 +426,23 @@ async function sendConfirmationEmail({
       | ConfirmationEmailResponse
       | null;
 
-    if (!response.ok || data?.emailSent !== true) {
-      return {
-        tone: "warning",
+    if (!response.ok || data?.ok === false || data?.emailSent !== true) {
+      return getEmailWarningNotice({
+        reason: data?.reason,
         message:
-          "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
-      };
+          data?.message ??
+          `La ruta de confirmación respondió con estado ${response.status}.`,
+        name: data?.name,
+        status: response.status,
+      });
     }
 
     return {
       tone: "success",
       message: "Se envió un correo de confirmación al contacto registrado.",
     };
-  } catch {
-    return {
-      tone: "warning",
-      message:
-        "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
-    };
+  } catch (error) {
+    return getEmailWarningNotice(getEmailRequestErrorDetail(error));
   }
 }
 
@@ -522,15 +564,46 @@ export function ChallengeForm() {
             {successMessage}
           </p>
           {emailNotice ? (
-            <p
-              className={`mt-2 text-sm leading-6 ${
+            <div
+              className={`mt-3 rounded-md border p-3 text-sm leading-6 ${
                 emailNotice.tone === "success"
-                  ? "text-teal-800"
-                  : "text-amber-800"
+                  ? "border-teal-200 bg-white/60 text-teal-800"
+                  : "border-amber-200 bg-amber-50 text-amber-900"
               }`}
             >
-              {emailNotice.message}
-            </p>
+              <p>{emailNotice.message}</p>
+              {emailNotice.tone === "warning" &&
+              emailNotice.technicalDetail &&
+              shouldShowEmailTechnicalDetail ? (
+                <div className="mt-3 rounded-md border border-amber-200 bg-white/70 p-3 text-xs leading-5 text-amber-900">
+                  <p className="font-semibold">Detalle técnico del correo</p>
+                  {emailNotice.technicalDetail.reason ? (
+                    <p className="mt-1">
+                      <span className="font-medium">Motivo:</span>{" "}
+                      {emailNotice.technicalDetail.reason}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.message ? (
+                    <p>
+                      <span className="font-medium">Mensaje:</span>{" "}
+                      {emailNotice.technicalDetail.message}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.name ? (
+                    <p>
+                      <span className="font-medium">Nombre:</span>{" "}
+                      {emailNotice.technicalDetail.name}
+                    </p>
+                  ) : null}
+                  {emailNotice.technicalDetail.status ? (
+                    <p>
+                      <span className="font-medium">Estado HTTP:</span>{" "}
+                      {emailNotice.technicalDetail.status}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}
