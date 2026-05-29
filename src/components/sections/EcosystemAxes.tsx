@@ -6,7 +6,6 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 
 type EcosystemAxis = {
   id: string;
-  number: number;
   title: string;
   shortDescription: string;
   function: string;
@@ -14,10 +13,13 @@ type EcosystemAxis = {
   outputs: string;
 };
 
-const axes: EcosystemAxis[] = [
+type NumberedEcosystemAxis = EcosystemAxis & {
+  number: number;
+};
+
+const axisDefinitions: EcosystemAxis[] = [
   {
     id: "banco-desafios",
-    number: 1,
     title: "Banco de desafíos",
     shortDescription:
       "Entrada estructurada de problemas, necesidades y oportunidades de digitalización.",
@@ -30,7 +32,6 @@ const axes: EcosystemAxis[] = [
   },
   {
     id: "taller-curso",
-    number: 2,
     title: "Taller o curso semestral",
     shortDescription:
       "Espacio formativo donde los desafíos seleccionados se transforman en prototipos o MVP.",
@@ -43,7 +44,6 @@ const axes: EcosystemAxis[] = [
   },
   {
     id: "laboratorio-continuidad",
-    number: 3,
     title: "Laboratorio de continuidad",
     shortDescription:
       "Espacio para sostener proyectos con potencial después del ciclo de asignatura.",
@@ -56,7 +56,6 @@ const axes: EcosystemAxis[] = [
   },
   {
     id: "infraestructura-tecnologica",
-    number: 4,
     title: "Infraestructura tecnológica",
     shortDescription:
       "Base técnica común para desarrollar, documentar, desplegar y mantener soluciones.",
@@ -68,8 +67,19 @@ const axes: EcosystemAxis[] = [
       "Repositorios GitHub, plantillas, documentación técnica, guías de IA, entornos de prueba y estándares mínimos.",
   },
   {
+    id: "financiamiento",
+    title: "Financiamiento",
+    shortDescription:
+      "Recursos, fondos, alianzas y mecanismos de apoyo para sostener el desarrollo, pilotaje y escalamiento de soluciones.",
+    function:
+      "Articula fuentes de financiamiento, alianzas y mecanismos de apoyo para priorizar recursos en desarrollo, pilotos y escalamiento.",
+    actors:
+      "Coordinación del ecosistema, unidades institucionales, académicos sponsor, partners externos y equipos de proyecto.",
+    outputs:
+      "Convocatorias, acuerdos de apoyo, presupuestos de pilotaje, rutas de financiamiento y criterios de sostenibilidad.",
+  },
+  {
     id: "portafolio-soluciones",
-    number: 5,
     title: "Portafolio de soluciones",
     shortDescription:
       "Vitrina de prototipos, MVP, pilotos y soluciones adoptadas o transferibles.",
@@ -82,7 +92,6 @@ const axes: EcosystemAxis[] = [
   },
   {
     id: "gobernanza-transferencia",
-    number: 6,
     title: "Gobernanza y transferencia",
     shortDescription:
       "Criterios, roles y reglas para seleccionar, priorizar, continuar, cerrar o transferir proyectos.",
@@ -95,7 +104,6 @@ const axes: EcosystemAxis[] = [
   },
   {
     id: "comunidad-cultura-digital",
-    number: 7,
     title: "Comunidad y cultura digital",
     shortDescription:
       "Participación sostenida de estudiantes, académicos, unidades internas y socios externos.",
@@ -108,6 +116,11 @@ const axes: EcosystemAxis[] = [
   },
 ];
 
+const axes: NumberedEcosystemAxis[] = axisDefinitions.map((axis, index) => ({
+  ...axis,
+  number: index + 1,
+}));
+
 const axesById = new Map(axes.map((axis) => [axis.id, axis]));
 
 const diagramCells = [
@@ -119,7 +132,7 @@ const diagramCells = [
   { type: "axis", axisId: "infraestructura-tecnologica" },
   { type: "axis", axisId: "gobernanza-transferencia" },
   { type: "axis", axisId: "portafolio-soluciones" },
-  { type: "note" },
+  { type: "axis", axisId: "financiamiento" },
 ] as const;
 
 function DiagramLines() {
@@ -131,6 +144,7 @@ function DiagramLines() {
     [250, 150],
     [50, 250],
     [150, 250],
+    [250, 250],
   ];
 
   return (
@@ -171,7 +185,7 @@ function AxisButton({
   isSelected,
   onSelect,
 }: {
-  axis: EcosystemAxis;
+  axis: NumberedEcosystemAxis;
   isSelected: boolean;
   onSelect: () => void;
 }) {
@@ -217,7 +231,7 @@ function CenterNode() {
   );
 }
 
-function AxisDetail({ axis }: { axis: EcosystemAxis }) {
+function AxisDetail({ axis }: { axis: NumberedEcosystemAxis }) {
   const details = [
     { label: "Función dentro del ecosistema", value: axis.function },
     { label: "Actores involucrados", value: axis.actors },
@@ -268,7 +282,7 @@ export function EcosystemAxes() {
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeader
           eyebrow="EJES PRINCIPALES"
-          title="Un ecosistema articulado por siete ejes funcionales"
+          title="Un ecosistema articulado por ocho ejes funcionales"
           description="Cada eje cumple una función específica dentro del ciclo de captura, desarrollo, continuidad y transferencia de soluciones digitales."
         />
 
@@ -281,18 +295,6 @@ export function EcosystemAxes() {
                 {diagramCells.map((cell) => {
                   if (cell.type === "center") {
                     return <CenterNode key="center" />;
-                  }
-
-                  if (cell.type === "note") {
-                    return (
-                      <div
-                        key="note"
-                        className="hidden min-h-[158px] rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-500 lg:flex lg:items-center"
-                      >
-                        Selecciona un eje para revisar su función, actores y
-                        entregables dentro del ecosistema.
-                      </div>
-                    );
                   }
 
                   const axis = axesById.get(cell.axisId);
