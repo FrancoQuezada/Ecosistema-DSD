@@ -4,14 +4,9 @@ import { ChallengeCard } from "@/components/cards/ChallengeCard";
 import { Badge } from "@/components/ui/Badge";
 import { FlowStep } from "@/components/ui/FlowStep";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { challengeEvaluations, challenges } from "@/data/challenges";
+import { listPublicChallenges } from "@/lib/repositories/challenges";
 
-const scoreByChallengeId = new Map(
-  challengeEvaluations.map((evaluation) => [
-    evaluation.id_desafio,
-    evaluation.puntaje_total,
-  ]),
-);
+export const dynamic = "force-dynamic";
 
 const suitableChallenges = [
   "Problemas con usuarios o stakeholders identificables.",
@@ -40,7 +35,9 @@ const lifecycle = [
   },
 ];
 
-export default function ChallengesPage() {
+export default async function ChallengesPage() {
+  const result = await listPublicChallenges();
+
   return (
     <div className="bg-slate-50">
       <section className="bg-[#111a24] py-20 text-white">
@@ -104,26 +101,42 @@ export default function ChallengesPage() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <SectionHeader
-              eyebrow="Desafíos mock"
-              title="Desafíos registrados para revisión"
-              description="Esta vista usa datos de ejemplo para mostrar cómo se visualizará el banco cuando exista persistencia real."
+              eyebrow="Banco público"
+              title="Desafíos publicados para revisión"
+              description="Estos desafíos fueron autorizados por el comité para difusión pública. Toda postulación nueva se revisa internamente antes de aparecer en esta vista."
             />
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="accent">{challenges.length} desafíos</Badge>
-              <Badge variant="neutral">
-                {challengeEvaluations.length} evaluados
-              </Badge>
-            </div>
+            {result.status === "ok" ? (
+              <Badge variant="accent">{result.challenges.length} desafíos</Badge>
+            ) : null}
           </div>
 
-          {challenges.length > 0 ? (
+          {result.status === "not_configured" ? (
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
+              <h3 className="text-lg font-semibold text-[#17212b]">
+                Supabase no está configurado
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                Esta versión desplegada no tiene configuradas las variables de
+                Supabase, por lo que el banco público no puede cargarse.
+              </p>
+            </div>
+          ) : result.status === "error" ? (
+            <div
+              className="rounded-lg border border-red-200 bg-red-50 p-10 text-center"
+              role="alert"
+            >
+              <h3 className="text-lg font-semibold text-red-800">
+                No fue posible cargar el banco de desafíos
+              </h3>
+              <p className="mt-2 text-sm text-red-700">
+                Ocurrió un error al consultar Supabase. Intenta nuevamente más
+                tarde.
+              </p>
+            </div>
+          ) : result.challenges.length > 0 ? (
             <div className="grid gap-5 lg:grid-cols-2">
-              {challenges.map((challenge) => (
-                <ChallengeCard
-                  key={challenge.id_desafio}
-                  challenge={challenge}
-                  score={scoreByChallengeId.get(challenge.id_desafio)}
-                />
+              {result.challenges.map((challenge) => (
+                <ChallengeCard key={challenge.id_desafio} challenge={challenge} />
               ))}
             </div>
           ) : (
@@ -132,7 +145,8 @@ export default function ChallengesPage() {
                 Aún no hay desafíos publicados
               </h3>
               <p className="mt-2 text-sm text-slate-600">
-                Cuando el banco reciba postulaciones, aparecerán en esta vista.
+                Cuando el comité autorice una postulación para difusión
+                pública, aparecerá en esta vista.
               </p>
             </div>
           )}

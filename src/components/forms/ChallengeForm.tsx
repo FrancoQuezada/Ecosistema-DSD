@@ -7,7 +7,7 @@ import {
   getSupabaseBrowserClient,
   getSupabaseEnvDiagnostics,
 } from "@/lib/supabase/client";
-import type { Challenge, TipoProponente } from "@/lib/types";
+import type { Challenge, NivelAccesoDatos, TipoProponente } from "@/lib/types";
 
 function getValue(formData: FormData, field: keyof Challenge) {
   return formData.get(field)?.toString().trim() ?? "";
@@ -184,12 +184,6 @@ function FormSection({
 
 type FieldErrors = Partial<Record<keyof Challenge, string>>;
 
-type SupabaseNivelAccesoDatos =
-  | "publico"
-  | "interno"
-  | "privado"
-  | "restringido";
-
 type DesafioInsertPayload = Pick<
   Challenge,
   | "nombre_desafio"
@@ -197,7 +191,8 @@ type DesafioInsertPayload = Pick<
   | "proponente_contacto"
   | "descripcion_problema"
 > & {
-  estado_desafio: "recibido";
+  estado_desafio: "postulado";
+  publicado: false;
   fecha_postulacion?: string;
   origen_desafio?: string;
   unidad_organizacion?: string;
@@ -209,7 +204,7 @@ type DesafioInsertPayload = Pick<
   tipo_solucion_esperada?: string;
   area_aplicacion?: string;
   datos_disponibles?: string;
-  nivel_acceso_datos?: SupabaseNivelAccesoDatos;
+  nivel_acceso_datos?: NivelAccesoDatos;
   restricciones_datos?: string;
   impacto_esperado?: string;
   beneficiarios?: string;
@@ -226,38 +221,18 @@ type TechnicalErrorDetail = {
   details?: string;
 };
 
-type ConfirmationEmailFailureReason = "resend_error" | "email_not_configured";
-
-type ConfirmationEmailTechnicalDetail = {
-  reason?: ConfirmationEmailFailureReason;
-  message?: string;
-  name?: string;
-  status?: number;
-};
-
-type ConfirmationEmailNotice = {
-  tone: "success" | "warning";
-  message: string;
-  technicalDetail?: ConfirmationEmailTechnicalDetail;
-};
-
 type ConfirmationEmailResponse = {
   ok?: boolean;
   emailSent?: boolean;
   message?: string;
-  name?: string;
-  reason?: ConfirmationEmailFailureReason;
 };
 
-const shouldShowEmailTechnicalDetail =
-  process.env.NODE_ENV !== "production" ||
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-
-const validNivelesAccesoDatos: SupabaseNivelAccesoDatos[] = [
+const validNivelesAccesoDatos: NivelAccesoDatos[] = [
+  "sin_datos",
   "publico",
   "interno",
-  "privado",
-  "restringido",
+  "sensible",
+  "por_definir",
 ];
 
 const optionalTextFields = [
@@ -313,11 +288,11 @@ function focusFirstInvalidField(form: HTMLFormElement, errors: FieldErrors) {
 
 function getNivelAccesoDatos(
   formData: FormData,
-): SupabaseNivelAccesoDatos | undefined {
+): NivelAccesoDatos | undefined {
   const value = getValue(formData, "nivel_acceso_datos");
 
-  if (validNivelesAccesoDatos.includes(value as SupabaseNivelAccesoDatos)) {
-    return value as SupabaseNivelAccesoDatos;
+  if (validNivelesAccesoDatos.includes(value as NivelAccesoDatos)) {
+    return value as NivelAccesoDatos;
   }
 
   return undefined;
@@ -329,7 +304,8 @@ function createDesafioInsertPayload(formData: FormData): DesafioInsertPayload {
     proponente_nombre: getValue(formData, "proponente_nombre"),
     proponente_contacto: getValue(formData, "proponente_contacto"),
     descripcion_problema: getValue(formData, "descripcion_problema"),
-    estado_desafio: "recibido",
+    estado_desafio: "postulado",
+    publicado: false,
     fecha_postulacion: new Date().toISOString().slice(0, 10),
   };
 
@@ -376,32 +352,8 @@ function getUnexpectedTechnicalErrorDetail(error: unknown): TechnicalErrorDetail
   return { message: "Error inesperado sin detalle disponible." };
 }
 
-function getEmailWarningNotice(
-  technicalDetail?: ConfirmationEmailTechnicalDetail,
-): ConfirmationEmailNotice {
-  return {
-    tone: "warning",
-    message:
-      "El desafío fue registrado correctamente, pero no se pudo enviar el correo de confirmación.",
-    technicalDetail,
-  };
-}
-
-function getEmailRequestErrorDetail(
-  error: unknown,
-): ConfirmationEmailTechnicalDetail {
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      name: error.name,
-    };
-  }
-
-  return {
-    message: "No fue posible consultar la ruta de confirmación por correo.",
-  };
-}
-
+// El envío de correo es best-effort: sus fallos se registran solo en consola
+// y nunca deben degradar la confirmación visible de un registro exitoso.
 async function sendConfirmationEmail({
   proponente_nombre,
   proponente_contacto,
@@ -409,7 +361,7 @@ async function sendConfirmationEmail({
 }: Pick<
   DesafioInsertPayload,
   "proponente_nombre" | "proponente_contacto" | "nombre_desafio"
->): Promise<ConfirmationEmailNotice> {
+>): Promise<void> {
   try {
     const response = await fetch("/api/desafios/confirmacion", {
       method: "POST",
@@ -427,22 +379,13 @@ async function sendConfirmationEmail({
       | null;
 
     if (!response.ok || data?.ok === false || data?.emailSent !== true) {
-      return getEmailWarningNotice({
-        reason: data?.reason,
-        message:
-          data?.message ??
-          `La ruta de confirmación respondió con estado ${response.status}.`,
-        name: data?.name,
-        status: response.status,
-      });
+      console.error(
+        "No fue posible enviar el correo de confirmacion",
+        data?.message ?? `Estado HTTP ${response.status}`,
+      );
     }
-
-    return {
-      tone: "success",
-      message: "Se envió un correo de confirmación al contacto registrado.",
-    };
   } catch (error) {
-    return getEmailWarningNotice(getEmailRequestErrorDetail(error));
+    console.error("No fue posible enviar el correo de confirmacion", error);
   }
 }
 
@@ -451,8 +394,6 @@ export function ChallengeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [emailNotice, setEmailNotice] =
-    useState<ConfirmationEmailNotice | null>(null);
   const [technicalError, setTechnicalError] =
     useState<TechnicalErrorDetail | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -469,7 +410,6 @@ export function ChallengeForm() {
 
     setSuccessMessage(null);
     setErrorMessage(null);
-    setEmailNotice(null);
     setTechnicalError(null);
     setFieldErrors({});
 
@@ -522,16 +462,15 @@ export function ChallengeForm() {
         return;
       }
 
-      const confirmationEmailNotice = await sendConfirmationEmail({
+      void sendConfirmationEmail({
         nombre_desafio: challenge.nombre_desafio,
         proponente_contacto: challenge.proponente_contacto,
         proponente_nombre: challenge.proponente_nombre,
       });
 
       setSuccessMessage(
-        "Desafío enviado correctamente. Quedó registrado con estado recibido para revisión inicial.",
+        "Desafío registrado correctamente. La postulación fue recibida y será revisada por el equipo del ecosistema.",
       );
-      setEmailNotice(confirmationEmailNotice);
       form.reset();
       setTechnicalError(null);
       setFieldErrors({});
@@ -554,57 +493,14 @@ export function ChallengeForm() {
     <div ref={formTopRef} className="space-y-8">
       {successMessage ? (
         <div
-          className="rounded-lg border border-teal-200 bg-teal-50 p-5"
+          className="rounded-lg border border-green-200 bg-green-50 p-5"
           role="status"
+          aria-live="polite"
         >
-          <p className="font-semibold text-[#0f766e]">
-            Desafío recibido para revisión inicial
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-700">
+          <p className="font-semibold text-green-800">Desafío registrado</p>
+          <p className="mt-2 text-sm leading-6 text-green-700">
             {successMessage}
           </p>
-          {emailNotice ? (
-            <div
-              className={`mt-3 rounded-md border p-3 text-sm leading-6 ${
-                emailNotice.tone === "success"
-                  ? "border-teal-200 bg-white/60 text-teal-800"
-                  : "border-amber-200 bg-amber-50 text-amber-900"
-              }`}
-            >
-              <p>{emailNotice.message}</p>
-              {emailNotice.tone === "warning" &&
-              emailNotice.technicalDetail &&
-              shouldShowEmailTechnicalDetail ? (
-                <div className="mt-3 rounded-md border border-amber-200 bg-white/70 p-3 text-xs leading-5 text-amber-900">
-                  <p className="font-semibold">Detalle técnico del correo</p>
-                  {emailNotice.technicalDetail.reason ? (
-                    <p className="mt-1">
-                      <span className="font-medium">Motivo:</span>{" "}
-                      {emailNotice.technicalDetail.reason}
-                    </p>
-                  ) : null}
-                  {emailNotice.technicalDetail.message ? (
-                    <p>
-                      <span className="font-medium">Mensaje:</span>{" "}
-                      {emailNotice.technicalDetail.message}
-                    </p>
-                  ) : null}
-                  {emailNotice.technicalDetail.name ? (
-                    <p>
-                      <span className="font-medium">Nombre:</span>{" "}
-                      {emailNotice.technicalDetail.name}
-                    </p>
-                  ) : null}
-                  {emailNotice.technicalDetail.status ? (
-                    <p>
-                      <span className="font-medium">Estado HTTP:</span>{" "}
-                      {emailNotice.technicalDetail.status}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ) : null}
         </div>
       ) : null}
 
@@ -781,10 +677,11 @@ export function ChallengeForm() {
             name="nivel_acceso_datos"
             options={[
               { value: "", label: "No informado" },
+              { value: "sin_datos", label: "Sin datos" },
               { value: "publico", label: "Público" },
               { value: "interno", label: "Interno" },
-              { value: "privado", label: "Privado" },
-              { value: "restringido", label: "Restringido" },
+              { value: "sensible", label: "Sensible" },
+              { value: "por_definir", label: "Por definir" },
             ]}
           />
           <TextAreaField

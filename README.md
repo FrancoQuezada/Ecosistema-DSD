@@ -2,7 +2,7 @@
 
 MVP web y operacional para el Departamento de Ingeniería Industrial de la Universidad de Santiago de Chile. La plataforma organiza un ecosistema académico que transforma desafíos reales en prototipos, MVP, pilotos y soluciones digitales transferibles.
 
-El sitio actual es una primera versión institucional: presenta la narrativa pública del ecosistema, un banco de desafíos con datos mock, un formulario público conectado a Supabase, un portafolio de soluciones de ejemplo y un panel interno simulado.
+El sitio actual es una primera versión institucional: presenta la narrativa pública del ecosistema, un banco de desafíos leído desde Supabase (solo los publicados por el comité), un formulario público conectado a Supabase, un portafolio de soluciones de ejemplo y un panel interno simulado con datos mock.
 
 ## Tech stack
 
@@ -103,7 +103,9 @@ npm run build
 
 ## Conexión con Supabase
 
-El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase.
+El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase. Cada postulación nueva se guarda con `estado_desafio: "postulado"` y `publicado: false`.
+
+La página `/desafios` lee desde esa misma tabla, a través de `src/lib/repositories/challenges.ts`, mostrando únicamente los desafíos con `publicado = true`. Ver `supabase/migrations/0001_desafios_public_read.sql` para las políticas RLS necesarias.
 
 Variables requeridas:
 
@@ -142,7 +144,7 @@ Si Resend no está configurado o el correo falla, la postulación sigue quedando
 
 ## Limitaciones actuales
 
-- Solo el formulario público está conectado a Supabase.
+- El formulario público y la lectura de `/desafios` están conectados a Supabase; evaluaciones, proyectos y portafolio siguen sin persistencia real.
 - No hay autenticación ni control de acceso.
 - El panel admin usa datos mock desde `src/data/challenges.ts`.
 - Los enlaces de demo y repositorio del portafolio son placeholders.

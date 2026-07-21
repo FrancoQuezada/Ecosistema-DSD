@@ -1,8 +1,21 @@
 import type { Challenge } from "@/lib/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
+export type ChallengeCardData = Pick<
+  Challenge,
+  | "id_desafio"
+  | "nombre_desafio"
+  | "descripcion_problema"
+  | "proponente_nombre"
+  | "unidad_organizacion"
+  | "usuario_objetivo"
+  | "tipo_solucion_esperada"
+  | "impacto_esperado"
+  | "estado_desafio"
+>;
+
 type ChallengeCardProps = {
-  challenge: Challenge;
+  challenge: ChallengeCardData;
   score?: number;
   compact?: boolean;
 };
