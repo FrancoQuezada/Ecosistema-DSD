@@ -94,7 +94,11 @@ export type GetPublicChallengeResult =
       challenge: PublicChallengeDetail;
     }
   | {
-      status: "not_found" | "error";
+      status: "not_found";
+      challenge: null;
+    }
+  | {
+      status: "error";
       challenge: null;
     };
 
