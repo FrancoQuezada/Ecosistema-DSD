@@ -134,6 +134,7 @@ export default async function ChallengesPage() {
                 <ChallengeCard
                   key={challenge.id_desafio ?? `desafio-${index}`}
                   challenge={challenge}
+                  compact
                 />
               ))}
             </div>

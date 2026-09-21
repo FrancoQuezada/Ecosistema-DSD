@@ -1,5 +1,7 @@
-import type { PublicChallenge } from "@/lib/types";
+import Link from "next/link";
+
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import type { PublicChallenge } from "@/lib/types";
 
 type ChallengeCardProps = {
   challenge: PublicChallenge;
@@ -12,14 +14,14 @@ function displayValue(value: string | null) {
 }
 
 export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps) {
-  return (
-    <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5 transition hover:border-[#99f6e4] hover:shadow-md hover:shadow-slate-900/8">
+  const content = (
+    <article className="h-full rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5 transition group-hover:border-[#99f6e4] group-hover:shadow-md group-hover:shadow-slate-900/8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
             {displayValue(challenge.id_desafio)}
           </p>
-          <h3 className="mt-2 text-xl font-semibold tracking-tight text-[#17212b]">
+          <h3 className="mt-2 text-xl font-semibold tracking-tight text-[#17212b] transition group-hover:text-[#0f766e]">
             {displayValue(challenge.nombre_desafio)}
           </h3>
         </div>
@@ -39,7 +41,7 @@ export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps)
         </div>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-600">
+      <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
         {displayValue(challenge.descripcion_problema)}
       </p>
 
@@ -75,11 +77,31 @@ export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps)
           <p className="text-sm font-semibold text-[#17212b]">
             Impacto esperado
           </p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">
             {displayValue(challenge.impacto_esperado)}
           </p>
         </div>
       ) : null}
+
+      {challenge.id_desafio ? (
+        <p className="mt-6 text-sm font-semibold text-[#0f766e]">
+          Ver detalle <span aria-hidden="true">→</span>
+        </p>
+      ) : null}
     </article>
+  );
+
+  if (!challenge.id_desafio) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={`/desafios/${encodeURIComponent(challenge.id_desafio)}`}
+      className="group block h-full rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0f766e]/20"
+      aria-label={`Ver detalle de ${displayValue(challenge.nombre_desafio)}`}
+    >
+      {content}
+    </Link>
   );
 }
