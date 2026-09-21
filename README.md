@@ -2,7 +2,7 @@
 
 MVP web y operacional para el Departamento de Ingeniería Industrial de la Universidad de Santiago de Chile. La plataforma organiza un ecosistema académico que transforma desafíos reales en prototipos, MVP, pilotos y soluciones digitales transferibles.
 
-El sitio actual es una primera versión institucional: presenta la narrativa pública del ecosistema, un banco de desafíos con datos mock, un formulario público conectado a Supabase, un portafolio de soluciones de ejemplo y un panel interno simulado.
+El sitio actual es una primera versión institucional: presenta la narrativa pública del ecosistema, un banco público de desafíos conectado a Supabase, un formulario de postulación, un portafolio de soluciones de ejemplo y un panel interno simulado.
 
 ## Tech stack
 
@@ -13,7 +13,7 @@ El sitio actual es una primera versión institucional: presenta la narrativa pú
 - Supabase JS
 - Resend
 - Simple Icons
-- Datos mock en módulos TypeScript
+- Datos mock para las secciones internas que todavía no están conectadas a Supabase
 
 ## Herramientas del ecosistema
 
@@ -75,8 +75,8 @@ Nota: los logos de herramientas visibles en la landing se renderizan localmente 
 ## Rutas principales
 
 - `/`: sitio público institucional
-- `/desafios`: banco de desafíos y criterios de evaluación
-- `/desafios/nuevo`: formulario de postulación de desafíos
+- `/desafios`: banco público de desafíos obtenidos desde Supabase
+- `/desafios/nuevo`: formulario que registra desafíos en Supabase
 - `/portafolio`: portafolio de soluciones digitales
 - `/admin/desafios`: panel interno MVP con desafíos mock
 
@@ -103,7 +103,9 @@ npm run build
 
 ## Conexión con Supabase
 
-El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase.
+El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase. La ruta `/desafios` consulta esa misma tabla desde un Server Component y muestra los campos necesarios para las cards públicas, ordenados por `fecha_postulacion` descendente.
+
+Ambas rutas usan únicamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`; no requieren ni usan una service-role key. La lectura pública depende de las políticas RLS de Supabase. Si el rol `anon` no tiene permiso de `SELECT`, la página muestra un mensaje seguro de carga y el detalle queda solo en los logs de desarrollo. Configura en Supabase una política de lectura para `anon` que permita únicamente las filas que deban ser públicas según el criterio de publicación definido para tu tabla.
 
 Variables requeridas:
 
@@ -125,7 +127,7 @@ Configuración en Vercel:
 3. Agregar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 4. Redeployar para que las variables queden disponibles en build/runtime.
 
-Limitación actual: el formulario público puede enviar desafíos, pero la gestión administrativa real todavía requiere autenticación, roles y políticas de acceso. El panel `/admin/desafios` sigue usando datos mock.
+Limitación actual: el formulario público puede enviar desafíos y el banco público puede consultarlos, pero la gestión administrativa real todavía requiere autenticación, roles y políticas de acceso. El panel `/admin/desafios` sigue usando datos mock.
 
 ## Correos de confirmación
 
@@ -142,7 +144,7 @@ Si Resend no está configurado o el correo falla, la postulación sigue quedando
 
 ## Limitaciones actuales
 
-- Solo el formulario público está conectado a Supabase.
+- `/desafios/nuevo` registra desafíos en Supabase y `/desafios` los consulta para mostrarlos públicamente.
 - No hay autenticación ni control de acceso.
 - El panel admin usa datos mock desde `src/data/challenges.ts`.
 - Los enlaces de demo y repositorio del portafolio son placeholders.

@@ -1,11 +1,15 @@
-import type { Challenge } from "@/lib/types";
+import type { PublicChallenge } from "@/lib/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type ChallengeCardProps = {
-  challenge: Challenge;
+  challenge: PublicChallenge;
   score?: number;
   compact?: boolean;
 };
+
+function displayValue(value: string | null) {
+  return value ?? "No informado";
+}
 
 export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps) {
   return (
@@ -13,14 +17,20 @@ export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps)
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-            {challenge.id_desafio}
+            {displayValue(challenge.id_desafio)}
           </p>
           <h3 className="mt-2 text-xl font-semibold tracking-tight text-[#17212b]">
-            {challenge.nombre_desafio}
+            {displayValue(challenge.nombre_desafio)}
           </h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge type="challenge" status={challenge.estado_desafio} />
+          {challenge.estado_desafio ? (
+            <StatusBadge type="challenge" status={challenge.estado_desafio} />
+          ) : (
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+              Estado no informado
+            </span>
+          )}
           {typeof score === "number" ? (
             <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800">
               {score}/100
@@ -30,28 +40,32 @@ export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps)
       </div>
 
       <p className="mt-4 text-sm leading-6 text-slate-600">
-        {challenge.descripcion_problema}
+        {displayValue(challenge.descripcion_problema)}
       </p>
 
       <dl className="mt-6 grid gap-4 text-sm md:grid-cols-2">
         <div>
           <dt className="font-semibold text-[#17212b]">Proponente</dt>
-          <dd className="mt-1 text-slate-600">{challenge.proponente_nombre}</dd>
+          <dd className="mt-1 text-slate-600">
+            {displayValue(challenge.proponente_nombre)}
+          </dd>
         </div>
         <div>
           <dt className="font-semibold text-[#17212b]">Unidad</dt>
           <dd className="mt-1 text-slate-600">
-            {challenge.unidad_organizacion}
+            {displayValue(challenge.unidad_organizacion)}
           </dd>
         </div>
         <div>
           <dt className="font-semibold text-[#17212b]">Usuario objetivo</dt>
-          <dd className="mt-1 text-slate-600">{challenge.usuario_objetivo}</dd>
+          <dd className="mt-1 text-slate-600">
+            {displayValue(challenge.usuario_objetivo)}
+          </dd>
         </div>
         <div>
           <dt className="font-semibold text-[#17212b]">Solución esperada</dt>
           <dd className="mt-1 text-slate-600">
-            {challenge.tipo_solucion_esperada}
+            {displayValue(challenge.tipo_solucion_esperada)}
           </dd>
         </div>
       </dl>
@@ -62,7 +76,7 @@ export function ChallengeCard({ challenge, score, compact }: ChallengeCardProps)
             Impacto esperado
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            {challenge.impacto_esperado}
+            {displayValue(challenge.impacto_esperado)}
           </p>
         </div>
       ) : null}
