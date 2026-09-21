@@ -9,10 +9,13 @@ export type NivelAccesoDatos =
   | "sin_datos"
   | "publico"
   | "interno"
+  | "privado"
+  | "restringido"
   | "sensible"
   | "por_definir";
 
 export type EstadoDesafio =
+  | "recibido"
   | "postulado"
   | "en_revision"
   | "evaluado"
@@ -77,6 +80,23 @@ export interface Challenge {
   potencial_continuidad: string;
   observaciones: string;
   estado_desafio: EstadoDesafio;
+}
+
+/**
+ * Subconjunto seguro de un desafío utilizado por las cards públicas.
+ * Los campos opcionales de la postulación pueden llegar como NULL desde
+ * Supabase, por lo que se representan explícitamente como valores nulos.
+ */
+export interface PublicChallenge {
+  id_desafio: string | null;
+  nombre_desafio: string | null;
+  estado_desafio: EstadoDesafio | null;
+  descripcion_problema: string | null;
+  proponente_nombre: string | null;
+  unidad_organizacion: string | null;
+  usuario_objetivo: string | null;
+  tipo_solucion_esperada: string | null;
+  impacto_esperado: string | null;
 }
 
 export interface ChallengeEvaluation {

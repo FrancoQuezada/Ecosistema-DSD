@@ -1,17 +1,11 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { ChallengeCard } from "@/components/cards/ChallengeCard";
 import { Badge } from "@/components/ui/Badge";
 import { FlowStep } from "@/components/ui/FlowStep";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { challengeEvaluations, challenges } from "@/data/challenges";
-
-const scoreByChallengeId = new Map(
-  challengeEvaluations.map((evaluation) => [
-    evaluation.id_desafio,
-    evaluation.puntaje_total,
-  ]),
-);
+import { listPublicChallenges } from "@/lib/repositories/challenges";
 
 const suitableChallenges = [
   "Problemas con usuarios o stakeholders identificables.",
@@ -40,7 +34,14 @@ const lifecycle = [
   },
 ];
 
-export default function ChallengesPage() {
+export default async function ChallengesPage() {
+  // Next.js 16 recommends connection() to run data that changes at request time
+  // after an incoming request instead of during the build prerender.
+  await connection();
+
+  const result = await listPublicChallenges();
+  const challenges = result.challenges;
+
   return (
     <div className="bg-slate-50">
       <section className="bg-[#111a24] py-20 text-white">
@@ -104,25 +105,35 @@ export default function ChallengesPage() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <SectionHeader
-              eyebrow="Desafíos mock"
+              eyebrow="Banco de desafíos"
               title="Desafíos registrados para revisión"
-              description="Esta vista usa datos de ejemplo para mostrar cómo se visualizará el banco cuando exista persistencia real."
+              description="Explora los desafíos registrados por la comunidad para su revisión, priorización y eventual desarrollo académico."
             />
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="accent">{challenges.length} desafíos</Badge>
-              <Badge variant="neutral">
-                {challengeEvaluations.length} evaluados
-              </Badge>
-            </div>
+            {result.status === "success" ? (
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="accent">
+                  {challenges.length} desafíos
+                </Badge>
+              </div>
+            ) : null}
           </div>
 
-          {challenges.length > 0 ? (
+          {result.status === "error" ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-10 text-center">
+              <h3 className="text-lg font-semibold text-[#17212b]">
+                No fue posible cargar los desafíos
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                Intenta nuevamente más tarde. Si el problema continúa, contacta
+                al equipo del ecosistema.
+              </p>
+            </div>
+          ) : challenges.length > 0 ? (
             <div className="grid gap-5 lg:grid-cols-2">
-              {challenges.map((challenge) => (
+              {challenges.map((challenge, index) => (
                 <ChallengeCard
-                  key={challenge.id_desafio}
+                  key={challenge.id_desafio ?? `desafio-${index}`}
                   challenge={challenge}
-                  score={scoreByChallengeId.get(challenge.id_desafio)}
                 />
               ))}
             </div>

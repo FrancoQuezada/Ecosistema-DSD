@@ -1,6 +1,7 @@
 import type { EstadoDesafio, EstadoMadurezSolucion } from "@/lib/types";
 
 const challengeLabels: Record<EstadoDesafio, string> = {
+  recibido: "Recibido",
   postulado: "Postulado",
   en_revision: "En revisión",
   evaluado: "Evaluado",
@@ -11,6 +12,7 @@ const challengeLabels: Record<EstadoDesafio, string> = {
 };
 
 const challengeClasses: Record<EstadoDesafio, string> = {
+  recibido: "border-slate-200 bg-slate-50 text-slate-700",
   postulado: "border-slate-200 bg-white text-slate-600",
   en_revision: "border-sky-200 bg-sky-50 text-sky-700",
   evaluado: "border-amber-200 bg-amber-50 text-amber-800",
