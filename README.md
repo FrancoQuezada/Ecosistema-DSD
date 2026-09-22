@@ -76,6 +76,7 @@ Nota: los logos de herramientas visibles en la landing se renderizan localmente 
 
 - `/`: sitio público institucional
 - `/desafios`: banco público de desafíos obtenidos desde Supabase
+- `/desafios/[id]`: detalle público de un desafío publicado
 - `/desafios/nuevo`: formulario que registra desafíos en Supabase
 - `/portafolio`: portafolio de soluciones digitales
 - `/admin/desafios`: panel interno MVP con desafíos mock
@@ -103,7 +104,7 @@ npm run build
 
 ## Conexión con Supabase
 
-El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase. La ruta `/desafios` consulta esa misma tabla desde un Server Component y muestra los campos necesarios para las cards públicas, ordenados por `fecha_postulacion` descendente.
+El formulario público de `/desafios/nuevo` inserta postulaciones en la tabla `desafios` usando el cliente público de Supabase. La ruta `/desafios` consulta esa misma tabla desde un Server Component y muestra un resumen de cada desafío. Cada card enlaza a `/desafios/[id]`, donde se presenta el detalle publicable del desafío. Los campos sensibles, como `proponente_contacto`, `restricciones_datos` y `observaciones`, no forman parte de la lectura anónima.
 
 Ambas rutas usan únicamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`; no requieren ni usan una service-role key. La lectura pública depende de las políticas RLS de Supabase. Si el rol `anon` no tiene permiso de `SELECT`, la página muestra un mensaje seguro de carga y el detalle queda solo en los logs de desarrollo. Configura en Supabase una política de lectura para `anon` que permita únicamente las filas que deban ser públicas según el criterio de publicación definido para tu tabla.
 

@@ -18,9 +18,12 @@ export type EstadoDesafio =
   | "recibido"
   | "postulado"
   | "en_revision"
+  | "requiere_ajustes"
   | "evaluado"
   | "priorizado"
   | "seleccionado"
+  | "banco_espera"
+  | "rechazado"
   | "convertido_en_proyecto"
   | "cerrado";
 
@@ -97,6 +100,28 @@ export interface PublicChallenge {
   usuario_objetivo: string | null;
   tipo_solucion_esperada: string | null;
   impacto_esperado: string | null;
+}
+
+/**
+ * Información publicable de un desafío para su vista de detalle.
+ * No incluye contacto del proponente, restricciones de datos ni observaciones
+ * internas, aunque esos campos existan en la tabla original.
+ */
+export interface PublicChallengeDetail extends PublicChallenge {
+  origen_desafio: string | null;
+  tipo_proponente: TipoProponente | null;
+  fecha_postulacion: string | null;
+  necesidad_oportunidad: string | null;
+  stakeholder_principal: string | null;
+  sponsor_academico: string | null;
+  area_aplicacion: string | null;
+  datos_disponibles: string | null;
+  nivel_acceso_datos: NivelAccesoDatos | null;
+  beneficiarios: string | null;
+  factibilidad_preliminar: string | null;
+  riesgos_restricciones: string | null;
+  horizonte_desarrollo: string | null;
+  potencial_continuidad: string | null;
 }
 
 export interface ChallengeEvaluation {
